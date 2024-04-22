@@ -47,8 +47,6 @@ public class Example {
         sb.append("]");
         return sb.toString();
     }*/
-    
-    
    public String toString() {  //se do qua in input Example newE, non funziona il tostring della classe Data
        String sb= "[";
        for (int i = 0; i < this.example.length; i++) {
@@ -64,9 +62,8 @@ public class Example {
 
 
 
-   /*
-   
-    	public static void main(String[] args) {
+
+   /* public static void main(String[] args) {
         Example e = new Example(4); // Changed the length to 4 to accommodate the 4 values
         e.set(0, 1.0);
         e.set(1, 2.0);
@@ -82,8 +79,6 @@ public class Example {
         System.out.println(e.get(2)); // Accessing the value at index 2
 
         System.out.println(e.distance(s));
-    }
-    
-    */
+    }*/
 }
 

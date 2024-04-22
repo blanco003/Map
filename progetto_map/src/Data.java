@@ -1,10 +1,12 @@
 
+
 public class Data {
 	Example data []; // che rappresenta il dataset
 	int numberOfExamples; // che rappresenta il numero di esempi nel dataset
 
 	Data(){
 			
+		
 		//data
 		
 		data = new Example [5];
@@ -41,7 +43,9 @@ public class Data {
 						
 		// numberOfExamples		
 		 numberOfExamples=5;
-		 
+
+
+
 	}
 
 	int getNumberOfExamples(){
