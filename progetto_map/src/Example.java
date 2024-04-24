@@ -35,18 +35,6 @@ public class Example {
     }
 
 
-   /* public String toString() {  //se do qua in input Example newE, non funziona il tostring della classe Data
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < this.example.length; i++) {
-            sb.append(this.example[i]);
-            if (i < this.example.length - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }*/
    public String toString() {  //se do qua in input Example newE, non funziona il tostring della classe Data
        String sb= "[";
        for (int i = 0; i < this.example.length; i++) {

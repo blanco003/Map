@@ -5,8 +5,6 @@ public class Data {
 	int numberOfExamples; // che rappresenta il numero di esempi nel dataset
 
 	Data(){
-			
-		
 		//data
 		
 		data = new Example [5];
@@ -44,8 +42,6 @@ public class Data {
 		// numberOfExamples		
 		 numberOfExamples=5;
 
-
-
 	}
 
 	int getNumberOfExamples(){
@@ -78,16 +74,6 @@ public class Data {
 	}
 
 
-
-
-	/*public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < numberOfExamples; i++) {
-			sb.append(i).append(":").append(data[i]).append("\n");
-		}
-		return sb.toString();
-	}*/
 	public String toString() {
 		String sb="";
 
@@ -109,5 +95,4 @@ public class Data {
 		}
 
 	}
-
 }
