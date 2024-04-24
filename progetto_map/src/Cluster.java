@@ -45,8 +45,7 @@ class Cluster {
 		return newC;
 		
 	}
-	
-	
+
 	public String toString() {		
 		String str="";
 		for (int i=0;i<clusteredData.length-1;i++)
@@ -62,9 +61,11 @@ class Cluster {
 			str+="<"+data.getExample(clusteredData[i])+">";				
 		
 		return str;
-		
 	}
-	
-
-
 }
+
+
+
+
+
+
