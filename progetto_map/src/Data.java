@@ -61,12 +61,8 @@ public class Data {
 		double[][] distanceMatrix = new double[n][n];
 
 		for (int i = 0; i < n; i++) {
-			for (int j = i; j < n; j++) {
+			for (int j = i+1; j < n; j++) {
 				distanceMatrix[i][j] = data[i].distance(data[j]);
-				if (i == j) {
-					distanceMatrix[i][j] = 0.0;
-
-				}
 			}
 		}
 

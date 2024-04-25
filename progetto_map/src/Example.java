@@ -6,19 +6,23 @@ public class Example {
     }
 
     void set(int index, Double v) {
-        if (index < example.length && index>=0) {
+        /*if (index < example.length && index>=0) {
             example[index] = v;
         } else {
             throw new IndexOutOfBoundsException("indice non valido");
         }
+        */
+        example[index] = v;
     }
 
     Double get(int index) {
-        if (index < example.length && index>=0) {
+        /*if (index < example.length && index>=0) {
             return example[index];
         } else {
             throw new IndexOutOfBoundsException("indice non valido");
         }
+        */
+        return example[index];
     }
 
     double distance(Example newE){

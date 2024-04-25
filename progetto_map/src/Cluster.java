@@ -34,7 +34,7 @@ class Cluster {
 			return copyC;
 	}
 	
-	// crea un nuovo cluster che è la fusione dei due cluster pre-esistenti
+	// crea un nuovo cluster che ï¿½ la fusione dei due cluster pre-esistenti
 	Cluster mergeCluster (Cluster c)
 	{
 		Cluster newC=new Cluster();
@@ -62,6 +62,22 @@ class Cluster {
 		
 		return str;
 	}
+
+	/* 
+	static public void main(String[] args){
+		Data data = new Data();
+		Cluster c = new Cluster();
+		System.out.println("Data : ");
+		System.out.println(data.toString());
+		System.out.println("Cluster : ");
+		c.addData(0);
+		c.addData(1);
+		c.addData(2);
+		c.addData(3);
+		c.addData(4);
+		System.out.println(c.toString(data));
+	}
+	*/
 }
 
 
