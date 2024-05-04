@@ -1,8 +1,10 @@
 
 
 public class AverageLinkDistance implements ClusterDistance {
-    public double distance(Cluster c1, Cluster c2, Data d) {
-
+    public double distance(Cluster c1, Cluster c2, Data d) throws InvalidSizeException {
+        if (c1.getSize() != c2.getSize()) {
+            throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
+        }
         double average = 0.0;
         double total_distance = 0.0;
 

@@ -1,4 +1,5 @@
 
+
 public class MainTest {
 
 	/**
@@ -8,7 +9,15 @@ public class MainTest {
 
 		System.out.println("Inserisci la profondità dell'oggetto dendrogramma:");
 		int k = Keyboard.readInt();
-		HierachicalClusterMiner clustering=new HierachicalClusterMiner(k);
+		Data data = new Data();
+		int numberOfExamples = data.getNumberOfExamples();
+		HierachicalClusterMiner clustering = null;
+		try {
+			clustering = new HierachicalClusterMiner(k, numberOfExamples);
+		} catch (InvalidDepthException e) {
+			System.out.println(e.getMessage());
+			return;
+		}
 		System.out.println("Scegli il tipo di misura di distanza tra cluster:");
 		System.out.println("1. Single link distance");
 		System.out.println("2. Average link distance");
@@ -23,7 +32,7 @@ public class MainTest {
 			distance = new AverageLinkDistance();
 		}
 
-		Data data =new Data();
+
 		System.out.println(data);
 
 
@@ -34,10 +43,15 @@ public class MainTest {
 				System.out.print(distancematrix[i][j]+" \t");
 			System.out.println("");
 		}
-		clustering.mine(data,distance);
+		try {
+			clustering.mine(data,distance);
+		} catch (InvalidSizeException e) {
+			e.printStackTrace();
+		}
 		System.out.println(clustering);
 		System.out.println(clustering.toString(data));
 
 	}
+
 
 }

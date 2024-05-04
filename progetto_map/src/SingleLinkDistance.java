@@ -1,7 +1,11 @@
 
 
 public class SingleLinkDistance implements ClusterDistance {
-	public double distance(Cluster c1, Cluster c2, Data d) {
+
+	public double distance(Cluster c1, Cluster c2, Data d) throws InvalidSizeException {
+		if (c1.getSize() != c2.getSize()) {
+			throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
+		}
 		
 		double min=Double.MAX_VALUE;
 		
@@ -38,7 +42,25 @@ public class SingleLinkDistance implements ClusterDistance {
 		// Stampa del risultato
 		System.out.println("Distanza tra cluster1 e cluster2: " + distance);
 	}*/
-}
+	/*public static void main(String[] args) {
+		Data data = new Data();
+		ClusterDistance distance = new SingleLinkDistance();
+
+		Cluster c1 = new Cluster();
+		c1.addData(0);
+		c1.addData(1);
+
+		Cluster c2 = new Cluster();
+		c2.addData(2);
+
+		try {
+			double dist = distance.distance(c1, c2, data);
+			System.out.println("Distance: " + dist);
+		} catch (InvalidSizeException e) {
+			e.printStackTrace();
+		}*/
+	}
+
 
 
 
