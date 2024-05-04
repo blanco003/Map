@@ -1,8 +1,12 @@
-class HierachicalClusterMiner {
+package clustering;
+import data.Data;
+import distance.ClusterDistance;
+
+public class HierachicalClusterMiner {
 	
 	private Dendrogram dendrogram;
 
-	HierachicalClusterMiner(int depth) {
+	public HierachicalClusterMiner(int depth) {
 		dendrogram= new Dendrogram(depth);
 	}
 
@@ -10,11 +14,11 @@ class HierachicalClusterMiner {
 		return dendrogram.toString();
 	}
 	
-	String toString(Data data) {
+	public String toString(Data data) {
 		return dendrogram.toString(data);
 	}
 
-	void mine(Data data, ClusterDistance distance) {
+	public void mine(Data data, ClusterDistance distance) {
 		// creazione del livello base del dendrogramma (livello 0)
 		ClusterSet baseLevel = new ClusterSet(data.getNumberOfExamples());
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {
@@ -33,6 +37,7 @@ class HierachicalClusterMiner {
 
 	}
 
+	/*
 	public static void main(String[] args) {
 		// creazione del set di dati
 		Data data = new Data();
@@ -47,5 +52,6 @@ class HierachicalClusterMiner {
 		System.out.println("Dendrogramma:");
 		System.out.println(clusterMiner.toString(data));
 	}
+	*/
 
 }

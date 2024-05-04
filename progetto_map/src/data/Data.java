@@ -1,10 +1,10 @@
-
+package data;
 
 public class Data {
 	Example data []; // che rappresenta il dataset
 	int numberOfExamples; // che rappresenta il numero di esempi nel dataset
 
-	Data(){
+	public Data(){
 		//data
 		
 		data = new Example [5];
@@ -44,19 +44,24 @@ public class Data {
 
 	}
 
-	int getNumberOfExamples(){
+	public int getNumberOfExamples(){
 		return this.numberOfExamples;
 	}
 
-	Example getExample(int exampleIndex) {
+	public Example getExample(int exampleIndex) {
+		/* 
 			if (exampleIndex < 0 || exampleIndex >= this.numberOfExamples) {
 				throw new IndexOutOfBoundsException("indice non valido");
 			}
 			return this.data[exampleIndex];
+		*/
+		return this.data[exampleIndex];
+		
 		}
 
 
-	double[][] distance() {
+
+	public double[][] distance() {
 		int n = getNumberOfExamples();
 		double[][] distanceMatrix = new double[n][n];
 
@@ -83,6 +88,7 @@ public class Data {
 		return sb;
 	}
 
+	/* 
 	public static void main(String args[]){
 		Data trainingSet=new Data();
 		System.out.println(trainingSet);
@@ -94,5 +100,7 @@ public class Data {
 			System.out.println("");
 		}
 
+
 	}
+	*/
 }

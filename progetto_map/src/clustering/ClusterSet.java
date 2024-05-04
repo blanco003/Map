@@ -1,3 +1,6 @@
+package clustering;
+import data.Data;
+import distance.ClusterDistance;
 
 class ClusterSet {
 

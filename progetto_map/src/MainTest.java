@@ -1,3 +1,8 @@
+import clustering.HierachicalClusterMiner;
+import data.Data;
+import distance.*;
+
+
 public class MainTest {
 
 	/**

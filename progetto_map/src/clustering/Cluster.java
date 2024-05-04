@@ -1,5 +1,7 @@
+package clustering;
+import data.Data;
 
-class Cluster {	
+public class Cluster {	
 
 	private Integer clusteredData[]=new Integer[0];
 	
@@ -18,11 +20,11 @@ class Cluster {
 	}
 		
 	
-	int getSize() {
+	public int getSize() {
 		return clusteredData.length;
 	}
 	
-	int getElement(int i) {
+	public int getElement(int i) {
 		return clusteredData[i];
 	}
 	
@@ -34,7 +36,7 @@ class Cluster {
 			return copyC;
 	}
 	
-	// crea un nuovo cluster che è la fusione dei due cluster pre-esistenti
+	// crea un nuovo cluster che ï¿½ la fusione dei due cluster pre-esistenti
 	Cluster mergeCluster (Cluster c)
 	{
 		Cluster newC=new Cluster();
