@@ -1,3 +1,5 @@
+package data;
+import exceptions.*;
 public class Example {
     private Double[] example; // vettore di valori reali
 
@@ -14,6 +16,9 @@ public class Example {
         */
         example[index] = v;
     }
+    public int getSize() {     //aggiunto per far funionare single ed average per le eccezioni
+        return example.length;
+    }
 
     Double get(int index) {
         /*if (index < example.length && index>=0) {
@@ -25,7 +30,7 @@ public class Example {
         return example[index];
     }
 
-    double distance(Example newE){
+    public double distance(Example newE){
         double distance=0;
         if (example.length != newE.example.length) {
             throw new IllegalArgumentException("I due vettori devono avere la stessa lunghezza");

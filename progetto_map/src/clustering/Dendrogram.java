@@ -1,4 +1,6 @@
-
+package clustering;
+import data.*;
+import exceptions.*;
 class Dendrogram{
     private ClusterSet tree[];
 

@@ -1,4 +1,7 @@
-
+package clustering;
+import data.*;
+import distance.*;
+import exceptions.*;
 class ClusterSet {
 
 	private Cluster C[];

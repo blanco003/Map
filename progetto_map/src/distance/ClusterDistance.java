@@ -1,4 +1,7 @@
-
+package distance;
+import clustering.*;
+import data.*;
+import exceptions.*;
 
 
 public interface ClusterDistance {

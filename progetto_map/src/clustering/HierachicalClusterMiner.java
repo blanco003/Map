@@ -1,9 +1,12 @@
-
-class HierachicalClusterMiner {
+package clustering;
+import data.*;
+import distance.*;
+import exceptions.*;
+public class HierachicalClusterMiner {
 	
 	private Dendrogram dendrogram;
 
-	HierachicalClusterMiner(int depth, int numberOfExamples) throws InvalidDepthException {
+	public HierachicalClusterMiner(int depth, int numberOfExamples) throws InvalidDepthException {
 		if(depth > numberOfExamples) {
 			throw new InvalidDepthException("La profondità non può essere più grande del numero di esempi nel dataset");
 		}
@@ -14,13 +17,13 @@ class HierachicalClusterMiner {
 		return dendrogram.toString();
 	}
 	
-	String toString(Data data) {
+	public String toString(Data data) {
 		return dendrogram.toString(data);
 	}
 
 
 
-	void mine(Data data, ClusterDistance distance) throws InvalidSizeException {
+	public void mine(Data data, ClusterDistance distance) throws InvalidSizeException {
 		// creazione del livello base del dendrogramma (livello 0)
 		ClusterSet baseLevel = new ClusterSet(data.getNumberOfExamples());
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {

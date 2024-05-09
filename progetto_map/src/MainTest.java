@@ -1,4 +1,7 @@
-
+import exceptions.*;
+import data.*;
+import clustering.*;
+import distance.*;
 
 public class MainTest {
 

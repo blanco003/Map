@@ -1,24 +1,28 @@
-
+package distance;
+import clustering.*;
+import data.*;
+import exceptions.*;
 
 public class AverageLinkDistance implements ClusterDistance {
     public double distance(Cluster c1, Cluster c2, Data d) throws InvalidSizeException {
-        if (c1.getSize() != c2.getSize()) {
-            throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
-        }
         double average = 0.0;
         double total_distance = 0.0;
 
         for (int i = 0; i < c1.getSize(); i++) {
             Example e1 = d.getExample(c1.getElement(i));
             for (int j = 0; j < c2.getSize(); j++) {
-                double distance = e1.distance(d.getExample(c2.getElement(j)));
+                Example e2 = d.getExample(c2.getElement(j));
+                if (e1.getSize() != e2.getSize()) {
+                    throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
+                }
+                double distance = e1.distance(e2);
                 total_distance += distance;
-
             }
         }
         average = total_distance / (c1.getSize() * c2.getSize());
         return average;
     }
+}
     /*public static void main(String args[]){
         // Creazione del set di dati
         Data data = new Data();
@@ -39,6 +43,6 @@ public class AverageLinkDistance implements ClusterDistance {
         // Stampa del risultato
         System.out.println("Distanza tra cluster1 e cluster2: " + distance);
     }*/
-}
+
 
 

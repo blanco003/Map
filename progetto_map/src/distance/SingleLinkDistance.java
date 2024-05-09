@@ -1,27 +1,30 @@
-
+package distance;
+import clustering.*;
+import data.*;
+import exceptions.*;
 
 public class SingleLinkDistance implements ClusterDistance {
-
 	public double distance(Cluster c1, Cluster c2, Data d) throws InvalidSizeException {
-		if (c1.getSize() != c2.getSize()) {
-			throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
-		}
-		
-		double min=Double.MAX_VALUE;
-		
-		for (int i=0;i< c1.getSize();i++)
-		{
-			Example e1=d.getExample(c1.getElement(i));
-			for(int j=0; j<c2.getSize();j++) {
-				double distance=e1.distance(d.getExample(c2.getElement(j)));
-				if (distance<min)				
-					min=distance;
+		double min_distance = Double.MAX_VALUE;
+
+		for (int i = 0; i < c1.getSize(); i++) {
+			Example e1 = d.getExample(c1.getElement(i));
+			for (int j = 0; j < c2.getSize(); j++) {
+				Example e2 = d.getExample(c2.getElement(j));
+				if (e1.getSize() != e2.getSize()) {
+					throw new InvalidSizeException("Gli esempi hanno dimensioni diverse");
+				}
+				double distance = e1.distance(e2);
+				if (distance < min_distance) {
+					min_distance = distance;
+				}
 			}
 		}
-		return min;
+		return min_distance;
 	}
+}
 
-	/*public static void main(String args[]){
+/*public static void main(String args[]){
 		// Creazione del set di dati
 		Data data = new Data();
 
@@ -59,7 +62,7 @@ public class SingleLinkDistance implements ClusterDistance {
 		} catch (InvalidSizeException e) {
 			e.printStackTrace();
 		}*/
-	}
+
 
 
 
