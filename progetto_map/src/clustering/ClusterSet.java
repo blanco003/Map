@@ -49,7 +49,8 @@ class ClusterSet {
 		
 	}
 
-	 ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) {
+	 ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException {
+
 
 		ClusterSet nuovo_clusters_set = new ClusterSet(this.lastClusterIndex - 1); // nuovoClusterSet : conterrà un Cluster in meno rispetto al CLusterSet corrente
 
