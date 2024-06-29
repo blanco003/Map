@@ -1,8 +1,12 @@
 package clustering;
-import data.Data;
-import distance.ClusterDistance;
+import java.io.Serializable;
 
-class ClusterSet {
+import data.Data;
+import distance.AverageLinkDistance;
+import distance.ClusterDistance;
+import distance.SingleLinkDistance;
+
+class ClusterSet implements Serializable{
 
 	private Cluster C[];
 	private int lastClusterIndex=0;
@@ -46,10 +50,9 @@ class ClusterSet {
 			}
 		}
 		return str;
-		
 	}
 
-	 ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException {
+	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) {
 
 
 		ClusterSet nuovo_clusters_set = new ClusterSet(this.lastClusterIndex - 1); // nuovoClusterSet : conterrà un Cluster in meno rispetto al CLusterSet corrente
@@ -75,27 +78,16 @@ class ClusterSet {
 			}
 		}
 	
-		/* 
-		// reinserisco tutti i Cluster del ClustersSet vecchio nel nuovo tranne i 2 con distanza minima trovata
-		for (int i = 0; i < lastClusterIndex; i++) {
-			if ( (i != temp_closest_cluster1) && (i != temp_closest_cluster2)) {
-				nuovo_clusters_set.add(this.get(i));
-			}
-		}
-	
-		// unisco i due cluster trovati (indici) con il metodo mergeCluster della classe Cluster
-		Cluster cluster_simili = this.get(temp_closest_cluster1).mergeCluster(this.get(temp_closest_cluster2));
-
-		// Aggiungere il cluster fuso alla nuova istanza di ClusterSet
-		nuovo_clusters_set.add(cluster_simili);
-
+		/*
+		System.out.println("\n---------------------------------");
+		System.out.println("unisco "+get(temp_closest_cluster1)+" e  "+get(temp_closest_cluster2)+" con distanza trovata : "+distanza_minima);
+		System.out.println("---------------------------------\n");
 		*/
 
 		for (int i = 0; i < temp_closest_cluster1; i++) {
 				nuovo_clusters_set.add(this.get(i));
 		}
 	
-
 		Cluster cluster_simili = this.get(temp_closest_cluster1).mergeCluster(this.get(temp_closest_cluster2));
 		nuovo_clusters_set.add(cluster_simili);
 
@@ -109,7 +101,8 @@ class ClusterSet {
 	}
 
 
-		/* prova
+
+	/* prova
 		public static void main(String[] args) {
 
 			Data data = new Data();

@@ -1,8 +1,16 @@
 package clustering;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import data.Data;
 import distance.ClusterDistance;
 
-public class HierachicalClusterMiner {
+public class HierachicalClusterMiner implements Serializable{
 	
 	private Dendrogram dendrogram;
 
@@ -25,7 +33,22 @@ public class HierachicalClusterMiner {
 		return dendrogram.toString(data);
 	}
 
-	public void mine(Data data, ClusterDistance distance) throws InvalidSizeException {
+	public void salva(String fileName)throws FileNotFoundException, IOException{
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName));
+        out.writeObject(this);
+        out.close();
+	}
+
+	public static HierachicalClusterMiner loadHierachicalClusterMiner(String fileName) throws FileNotFoundException,IOException,ClassNotFoundException{
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName));
+        HierachicalClusterMiner h = (HierachicalClusterMiner) in.readObject();
+        in.close();
+        return h;
+	}
+
+
+
+	public void mine(Data data, ClusterDistance distance) throws InvalidSizeException{
 		// creazione del livello base del dendrogramma (livello 0)
 		ClusterSet baseLevel = new ClusterSet(data.getNumberOfExamples());
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {

@@ -1,65 +1,112 @@
 package data;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import database.DatabaseConnectionException;
+import database.DbAccess;
+import database.EmptySetException;
+import database.MissingNumberException;
+import database.TableData;
+import database.TableSchema;
+
 public class Data {
+
+	private List<Example> data=new ArrayList<>();
+	int numberOfExamples; 
+
+	/* 
 	Example data []; // che rappresenta il dataset
-	int numberOfExamples; // che rappresenta il numero di esempi nel dataset
+	int numberOfExamples; 
+	*/
 
+	/* rimosso dopo il database 
 	public Data(){
-		//data
-		
-		data = new Example [5];
-		Example e=new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 2.0);
-		e.set(2, 0.0);
-		data[0]=e;
-		
-		e=new Example(3);
-		e.set(0, 0.0);
-		e.set(1, 1.0);
-		e.set(2, -1.0);
-		data[1]=e;
-		
-		e=new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 3.0);
-		e.set(2, 5.0);
-		data[2]=e;
-		
-		
-		e=new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 3.0);
-		e.set(2, 4.0);
-		data[3]=e;
-		
-		e=new Example(3);
-		e.set(0, 2.0);
-		e.set(1, 2.0);
-		e.set(2, 0.0);
-		data[4]=e;
-						
-		// numberOfExamples		
-		 numberOfExamples=5;
 
+		//data
+		data = new ArrayList<>();
+
+		Example e=new Example();
+
+		e.add(1.0);
+		e.add(2.0);
+		e.add(0.0);
+		data.add(e);
+		
+		e=new Example();
+		e.add(0.0);
+		e.add(1.0);
+		e.add(-1.0);
+		data.add(e);
+		
+		e=new Example();
+		e.add(1.0);
+		e.add(3.0);
+		e.add(5.0);
+		data.add(e);
+		
+		
+		e=new Example();
+		e.add(1.0);
+		e.add(3.0);
+		e.add(4.0);
+		data.add(e);
+		
+		e=new Example();
+		e.add(2.0);
+		e.add(2.0);
+		e.add(0.0);
+		data.add(e);
+		
+	
+		numberOfExamples=5;
+		 
+
+	}
+	*/
+
+	Data(String tableName) throws NoDataException, DatabaseConnectionException, MissingNumberException{ // forse DAtabaseConnection, da sistemare MissingNumber
+
+		DbAccess dbacc = new DbAccess();
+		 
+		TableSchema schema=null;
+		try{
+			schema=new TableSchema(dbacc,tableName);
+		}catch(SQLException e) {
+            throw new NoDataException(e.getMessage() + ": impossibile trovare la tabella " + tableName);
+        }
+		
+		TableData dati = new TableData(dbacc);
+		
+		try {
+
+			this.data=dati.getDistinctTransazioni(tableName);
+
+		} catch (SQLException | EmptySetException e) {
+			System.out.println(e.getMessage()+" Tabella vuota");
+		}
+
+		this.numberOfExamples=data.size();
+		try {
+			dbacc.closeConnection();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	public int getNumberOfExamples(){
-		return this.numberOfExamples;
+		return data.size();
 	}
 
 	public Example getExample(int exampleIndex) {
-		/* 
-			if (exampleIndex < 0 || exampleIndex >= this.numberOfExamples) {
-				throw new IndexOutOfBoundsException("indice non valido");
-			}
-			return this.data[exampleIndex];
-		*/
-		return this.data[exampleIndex];
-		
-		}
+		return this.data.get(exampleIndex);
+	}
 
 
+	
 
 	public double[][] distance() {
 		int n = getNumberOfExamples();
@@ -67,7 +114,7 @@ public class Data {
 
 		for (int i = 0; i < n; i++) {
 			for (int j = i; j < n; j++) {
-				distanceMatrix[i][j] = data[i].distance(data[j]);
+				distanceMatrix[i][j] = data.get(i).distance(data.get(j));
 				if (i == j) {
 					distanceMatrix[i][j] = 0.0;
 
@@ -81,26 +128,23 @@ public class Data {
 
 	public String toString() {
 		String sb="";
-
-		for (int i = 0; i < numberOfExamples; i++) {
-			sb+=(i)+(":")+(data[i])+("\n");
+		
+		Iterator<Example> it = data.iterator();
+		int i = 0;
+		while(it.hasNext()){
+			sb += i + ":" + it.next().toString() + "\n";
+			i++;
 		}
 		return sb;
-	}
 
-	/* 
-	public static void main(String args[]){
-		Data trainingSet=new Data();
-		System.out.println(trainingSet);
-		double [][] distancematrix=trainingSet.distance();
-		System.out.println("Distance matrix:\n");
-		for(int i=0;i<distancematrix.length;i++) {
-			for(int j=0;j<distancematrix.length;j++)
-				System.out.print(distancematrix[i][j]+"\t ");
-			System.out.println("");
+		/* 
+		String sb="";
+		for (int i = 0; i < data.size(); i++) {
+			sb+=(i)+(":")+(data.get(i))+("\n");
 		}
-
-
+		return sb;
+		*/
 	}
-	*/
+
+	
 }
