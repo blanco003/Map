@@ -16,7 +16,7 @@ public class HierachicalClusterMiner implements Serializable{
 
 	public HierachicalClusterMiner(int depth, int numberOfExamples) throws InvalidDepthException {
 		if(depth > numberOfExamples) {
-			throw new InvalidDepthException("La profondità non può essere più grande del numero di esempi nel dataset");
+			throw new InvalidDepthException("! ! Errore : La profondità non può essere più grande del numero di esempi nel dataset ("+numberOfExamples+")");
 		}
 		dendrogram = new Dendrogram(depth);
 	}
@@ -67,21 +67,12 @@ public class HierachicalClusterMiner implements Serializable{
 
 	}
 
-	/*
-	public static void main(String[] args) {
-		// creazione del set di dati
-		Data data = new Data();
 
-		// creazione dell'istanza di HierachicalClusterMiner con una profondità del dendrogramma di 5
-		HierachicalClusterMiner clusterMiner = new HierachicalClusterMiner(5);
-
-		// esecuzione dell'algoritmo di clustering gerarchico
-		clusterMiner.mine(data, new SingleLinkDistance()); // utilizzando la distanza tra cluster di tipo Single Linkage
-
-		// stampa del dendrogramma
-		System.out.println("Dendrogramma:");
-		System.out.println(clusterMiner.toString(data));
+	// aggiunta per gestire il caso in cui la tabella del db contiene un numero di esempi inferiore alla profondità di Dendrogram
+	public int getDendrogramDepth(){
+		return dendrogram.getDepth();
 	}
-	*/
+
+
 
 }

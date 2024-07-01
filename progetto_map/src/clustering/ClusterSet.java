@@ -2,9 +2,8 @@ package clustering;
 import java.io.Serializable;
 
 import data.Data;
-import distance.AverageLinkDistance;
 import distance.ClusterDistance;
-import distance.SingleLinkDistance;
+
 
 class ClusterSet implements Serializable{
 
@@ -99,42 +98,5 @@ class ClusterSet implements Serializable{
 
 		return nuovo_clusters_set;
 	}
-
-
-
-	/* prova
-		public static void main(String[] args) {
-
-			Data data = new Data();
-			ClusterSet clusterSet = new ClusterSet(3);
 	
-			Cluster cluster1 = new Cluster();
-			cluster1.addData(0);
-			cluster1.addData(1);
-			cluster1.addData(2);
-	
-			Cluster cluster2 = new Cluster();
-			cluster2.addData(3);
-			cluster2.addData(4);
-	
-			Cluster cluster3 = new Cluster();
-			cluster3.addData(0);
-			cluster3.addData(3);
-	
-
-			clusterSet.add(cluster1);
-			clusterSet.add(cluster2);
-			clusterSet.add(cluster3);
-
-			System.out.println("Vecchio ClusterSet: \n" + clusterSet.toString(data));
-			
-			ClusterDistance clusterDistance = new SingleLinkDistance();
-			ClusterSet nuovo_ClusterSet = clusterSet.mergeClosestClusters(clusterDistance, data);
-
-			System.out.println("Nuovo clusterset con cluster piu simili uniti:\n" + nuovo_ClusterSet.toString(data));
-
-		}
-		*/
-	
-
 }

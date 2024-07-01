@@ -1,10 +1,11 @@
 package data;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Example implements Iterable<Double>{
+public class Example implements Iterable<Double>,Serializable{
 
     private List<Double> example; // vettore di valori reali
 
@@ -57,7 +58,7 @@ public class Example implements Iterable<Double>{
     public double distance(Example newE){
         double distance=0;
         if (example.size() != newE.example.size()) {
-            throw new IllegalArgumentException("I due vettori devono avere la stessa lunghezza"); // eccezione nuova
+            throw new IllegalArgumentException("I due vettori devono avere la stessa lunghezza");
         }
 
         Iterator<Double> it1 = iterator();

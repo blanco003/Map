@@ -1,5 +1,6 @@
 package data;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,17 +13,16 @@ import database.MissingNumberException;
 import database.TableData;
 import database.TableSchema;
 
-public class Data {
+public class Data implements Serializable{
 
 	private List<Example> data=new ArrayList<>();
 	int numberOfExamples; 
 
-	/* 
-	Example data []; // che rappresenta il dataset
-	int numberOfExamples; 
-	*/
+	// Example data []; // che rappresenta il dataset
+	
 
-	/* rimosso dopo il database 
+	//rimosso dopo il database 
+	/* 
 	public Data(){
 
 		//data
@@ -47,7 +47,6 @@ public class Data {
 		e.add(5.0);
 		data.add(e);
 		
-		
 		e=new Example();
 		e.add(1.0);
 		e.add(3.0);
@@ -60,20 +59,20 @@ public class Data {
 		e.add(0.0);
 		data.add(e);
 		
-	
 		numberOfExamples=5;
-		 
-
 	}
 	*/
+	
 
-	Data(String tableName) throws NoDataException, DatabaseConnectionException, MissingNumberException{ // forse DAtabaseConnection, da sistemare MissingNumber
+	public Data(String tableName) throws NoDataException, DatabaseConnectionException{
 
+		// connessione al DB
 		DbAccess dbacc = new DbAccess();
 		 
-		TableSchema schema=null;
+		// creazione dello schema della tabella
+		TableSchema schema = null;
 		try{
-			schema=new TableSchema(dbacc,tableName);
+			schema =new TableSchema(dbacc,tableName);  // potrebbe generare DataBaseConnectionException e propogarla
 		}catch(SQLException e) {
             throw new NoDataException(e.getMessage() + ": impossibile trovare la tabella " + tableName);
         }
@@ -81,19 +80,27 @@ public class Data {
 		TableData dati = new TableData(dbacc);
 		
 		try {
-
-			this.data=dati.getDistinctTransazioni(tableName);
-
-		} catch (SQLException | EmptySetException e) {
-			System.out.println(e.getMessage()+" Tabella vuota");
+			// lettura risultato della query di selezione sulla tabella ed inizilizzazione ArrayList di Example
+			this.data=dati.getDistinctTransazioni(tableName);     // potrebbe generare DataBaseConnectionException e propogarla 
+		} catch (EmptySetException e) {
+			System.err.println(e.getMessage()+" Tabella vuota");        
+		}catch(SQLException e){
+			throw new NoDataException(e.getMessage() + ": impossibile trovare la tabella " + tableName);
 		}
+		/*
+		catch(MissingNumberException e){
+			// non si verificherà mai poichè viene controllato se l'attributo non è numerico e viene inserito un valore o di default o la media dei valori già inseriti
+			System.out.println("\n! ! Errore : la tabella contiene attributi non numerici, riprovare");
+		}
+		*/
 
-		this.numberOfExamples=data.size();
+		this.numberOfExamples=data.size();    // inizializza il numero di esempi con il numero di esempi trovati
+
 		try {
-			dbacc.closeConnection();
-		} catch (SQLException e1) {
+			dbacc.closeConnection();     // chiudiamo la connessione al db
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
@@ -137,13 +144,7 @@ public class Data {
 		}
 		return sb;
 
-		/* 
-		String sb="";
-		for (int i = 0; i < data.size(); i++) {
-			sb+=(i)+(":")+(data.get(i))+("\n");
-		}
-		return sb;
-		*/
+	
 	}
 
 	

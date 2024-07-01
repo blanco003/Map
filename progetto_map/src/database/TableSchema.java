@@ -13,6 +13,7 @@ import java.util.List;
 
 
 public class TableSchema {
+	
 	private DbAccess db;
 	public class Column{
 		private String name;
@@ -60,14 +61,8 @@ public class TableSchema {
 	        				 res.getString("COLUMN_NAME"),
 	        				 mapSQL_JAVATypes.get(res.getString("TYPE_NAME")))
 	        				 );
-	
-	         
-	         
 	      }
 	      res.close();
-	
-	
-	    
 	    }
 	  
 	
