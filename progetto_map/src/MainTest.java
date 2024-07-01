@@ -173,7 +173,7 @@ public class MainTest {
 						}
 					
 					}catch(NoDataException e){
-						System.out.println("\n! ! Errore : non sono stati trovati dataset, riprovare");
+						System.err.println(e.getMessage());
 					}catch(DatabaseConnectionException e){
 						System.out.println("\n! ! Errore : connessione al database non avvenuta correttamente");
 						e.printStackTrace();
@@ -199,7 +199,7 @@ public class MainTest {
 						data = new Data(tableName);
 						dataTrovati = true;
 					}catch(NoDataException e){
-						System.out.println("\n! ! Errore : non sono stati trovati dataset, riprovare");
+						System.err.println(e.getMessage());
 					}catch(DatabaseConnectionException e){
 						System.out.println("\n! ! Errore : connesione al database non avvenuta correttamente");
 						e.printStackTrace();
