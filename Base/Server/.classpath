@@ -9,3 +9,4 @@
 	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="lib" path="../lib/mysql-connector-java-8.0.17.jar"/>
 </classpath>
+

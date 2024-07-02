@@ -18,9 +18,8 @@ public class Data implements Serializable{
 	private List<Example> data=new ArrayList<>();
 	int numberOfExamples; 
 
-	// Example data []; // che rappresenta il dataset
+	// Example data []; // rappresenta il dataset
 	
-
 	//rimosso dopo il database 
 	/* 
 	public Data(){
@@ -74,7 +73,7 @@ public class Data implements Serializable{
 		try{
 			schema =new TableSchema(dbacc,tableName);  // potrebbe generare DataBaseConnectionException e propogarla
 		}catch(SQLException e) {
-            throw new NoDataException("\n! ! Errore : impossibile trovare la tabella \"" + tableName+"\" ");
+            throw new NoDataException("! ! Errore : impossibile trovare la tabella, riprovare");
         }
 		
 		TableData dati = new TableData(dbacc);
@@ -83,9 +82,9 @@ public class Data implements Serializable{
 			// lettura risultato della query di selezione sulla tabella ed inizilizzazione ArrayList di Example
 			this.data=dati.getDistinctTransazioni(tableName);     // potrebbe generare DataBaseConnectionException e propogarla 
 		} catch (EmptySetException e) {
-			throw new NoDataException("\n! ! Errore : la tabella \""+tableName+"\" è vuota");       
+			throw new NoDataException("! ! Errore : la tabella è vuota, riprovare");       
 		}catch(SQLException e){
-			throw new NoDataException("\n! ! Errore : impossibile trovare la tabella \"" + tableName+"\" ");
+			throw new NoDataException("! ! Errore : impossibile trovare la tabella, riprovare");
 		}
 		/*
 		catch(MissingNumberException e){
