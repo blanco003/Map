@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+
 import clustering.HierachicalClusterMiner;
 import clustering.InvalidDepthException;
 import clustering.InvalidSizeException;
@@ -88,11 +90,12 @@ public class ServerOneClient extends Thread {
                     //il Client invia la profondita' del Dendrogramma
                     Integer profondita = Integer.parseInt(this.in.readObject().toString());
 
+                    // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException
+                    clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());  
+
                     //invia il tipo di distanza, 1 per SingeLink e 2 per AverageLink
                     Integer distanza = Integer.parseInt(this.in.readObject().toString());
                     ClusterDistance distance;
-
-                    clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());
                     
                     if(distanza==1){
                         distance = new SingleLinkDistance();
@@ -126,8 +129,16 @@ public class ServerOneClient extends Thread {
                     System.out.println("Il Dendrogramma è stato caricato con successo");
                    
                 }
-                
+
         // se si e' verificata un eccezione in qualsiasi punto spediamo il messaggio di errore al Client
+         
+        }catch(SocketException e){
+            System.out.println("!! Errore durante la connessione");
+            try {
+                this.out.writeObject("!! Errore durante la connessione");
+            } catch (IOException e1) {
+                
+            }
         }catch(IOException|ClassNotFoundException|InvalidDepthException|InvalidSizeException e){
             try {
                 this.out.writeObject(e.getMessage());     // spediamo il messagio di errore al Client
@@ -137,7 +148,6 @@ public class ServerOneClient extends Thread {
             System.out.println(e.getMessage());    // stampiamo a video sul Server il messagio di errore
         }
 
-        
         // sia nel caso in cui la comunicazione sia terminata eccezionalemente, sia se è stata eseguita correttamente, chiudiamo la connessione con il Client
         finally{
 
