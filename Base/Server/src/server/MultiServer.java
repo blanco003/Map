@@ -12,7 +12,7 @@ public class MultiServer {
 
     static final int PORT = 8080; /** Porta su cui gira il Server */
 
-    public static void main(String[] args) throws IOException{
+    public void avvia_server() throws IOException{
         
         // l'oggetto ServerSocket (che è un solo) lavora sul thread principale
         // una volta aperto ServerSocket sulla porta specificata, il thread principale avrà solo un compito, quello di accept()
