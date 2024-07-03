@@ -5,18 +5,36 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * La classe Example rappresenta una LinkedList di valori reali e fornisce metodi per
+ * manipolare e calcolare la distanza tra due liste.
+ */
+
 public class Example implements Iterable<Double>,Serializable{
-
-    private List<Double> example; // vettore di valori reali
-
+	
+    private List<Double> example; 
+    
+    /**
+     * Costruttore che inizializza un nuovo oggetto Example con una LinkedList vuoto.
+     */
     public Example() {
         example = new LinkedList<>();
     }
 
+    /**
+     * Restituisce un iteratore sui valori della LinkedList.
+     *
+     * @return un iteratore di Double sui valori della LinkeList.
+     */
     public Iterator<Double> iterator() {
         return example.iterator();
     }
 
+    /**
+     * Aggiunge un valore alla LinkedList.
+     *
+     * @param v il valore Double da aggiungere alla LinkedList.
+     */
     public void add(Double v) {
         example.add(v);
     }
@@ -33,6 +51,13 @@ public class Example implements Iterable<Double>,Serializable{
     }
     */
 
+
+    /**
+     * Restituisce il valore nella LinkedList all'indice specificato.
+     *
+     * @param index l'indice del valore da restituire.
+     * @return il valore Double all'indice specificato.
+     */
     Double get(int index) {
         return example.get(index);
     }
@@ -55,10 +80,19 @@ public class Example implements Iterable<Double>,Serializable{
 
     */
 
-    public double distance(Example newE){
+
+    /**
+     * Calcola la distanza euclidea tra la LinkedList di valori reali ed un'altra fornita.
+     * La distanza è calcolata come la somma dei quadrati delle differenze tra i corrispondenti elementi delle 2 LinkedList.
+     *
+     * @param newE l'altro oggetto Example con cui calcolare la distanza.
+     * @return la distanza euclidea tra le 2 LinkedList di valori reali.
+     * @throws InvalidSizeException se le 2 LinkedList hanno lunghezze diverse.
+     */
+    public double distance(Example newE) throws InvalidSizeException{
         double distance=0;
         if (example.size() != newE.example.size()) {
-            throw new IllegalArgumentException("I due vettori devono avere la stessa lunghezza");
+        	throw new InvalidSizeException("I due vettori devono avere la stessa lunghezza");
         }
 
         Iterator<Double> it1 = iterator();
@@ -75,6 +109,8 @@ public class Example implements Iterable<Double>,Serializable{
 
      
    /*
+    // rimpiazzato con iterator
+
    public String toString() {  //se do qua in input Example newE, non funziona il tostring della classe Data
 
        String sb= "[";
@@ -90,6 +126,14 @@ public class Example implements Iterable<Double>,Serializable{
    }
    */
 
+
+
+   /**
+    * Restituisce una rappresentazione in formato stringa della LinkedList di valori reali.
+    * La LinkedList è rappresentata da partentesi quadre [] con i valori separati da virgola.
+    *
+    * @return una stringa che rappresenta la LinkedList di valori reaòo.
+    */
    public String toString() {
 
     String sb = "[";
@@ -107,16 +151,5 @@ public class Example implements Iterable<Double>,Serializable{
     return sb;
 }
 
-    /* 
-    public static void main(String[] args) {
-        Example e = new Example(4); // Changed the length to 4 to accommodate the 4 values
-        e.add(1.0);
-        e.add(2.0);
-        e.add(3.0);
-        e.add(4.0);
-
-        System.out.println(e.toString());
-    }
-        */
 }
 

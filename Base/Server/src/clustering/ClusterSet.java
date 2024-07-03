@@ -2,19 +2,37 @@ package clustering;
 import java.io.Serializable;
 
 import data.Data;
+import data.InvalidSizeException;
 import distance.ClusterDistance;
 
-
+/**
+ * La classe ClusterSet rappresenta un insieme di cluster.
+ * Questa classe permette di aggiungere cluster, ottenere cluster specifici,
+ * creare una rappresentazione sotto forma di stringa dell'insieme di cluster,
+ * e unire i cluster più vicini in base a una determinata distanza.
+ */
 class ClusterSet implements Serializable{
 
-	private Cluster C[];
-	private int lastClusterIndex=0;
+	private Cluster C[];   /** Array di Cluster */
+	private int lastClusterIndex=0;    /** Indice dell'ultimo Cluster inserito nel ClusterSet */
 	
-	ClusterSet(int k){
+
+	/**
+	 * Costruisce un ClusterSet con una dimensione specificata.
+	 *
+	 * @param k la dimensione del ClusterSet
+	 */
+	public ClusterSet(int k){
 		C=new Cluster[k];
 	}
 	
-	void add(Cluster c){
+
+	/**
+	 * Aggiunge un cluster all'insieme di cluster.
+	 *
+	 * @param c il cluster da aggiungere
+	 */
+	public void add(Cluster c){
 		for(int j=0;j<lastClusterIndex;j++)
 			if(c==C[j]) // to avoid duplicates
 				return;
@@ -22,11 +40,22 @@ class ClusterSet implements Serializable{
 		lastClusterIndex++;
 	}
 	
-	Cluster get(int i){
+
+	/**
+	 * Restituisce il cluster all'indice specificato.
+	 *
+	 * @param i l'indice del cluster da restituire
+	 * @return il cluster all'indice specificato
+	 */
+	protected Cluster get(int i){
 		return C[i];
 	}
 	
-	
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster.
+	 *
+	 * @return una stringa che rappresenta l'insieme di cluster
+	 */
 	public String toString(){
 		String str="";
 		for(int i=0;i<C.length;i++){
@@ -40,7 +69,13 @@ class ClusterSet implements Serializable{
 	}
 
 	
-	String toString(Data data){
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando i dati forniti.
+	 *
+	 * @param data i dati da utilizzare per la rappresentazione
+	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
+	 */
+	public String toString(Data data){
 		String str="";
 		for(int i=0;i<C.length;i++){
 			if (C[i]!=null){
@@ -51,8 +86,16 @@ class ClusterSet implements Serializable{
 		return str;
 	}
 
-	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) {
 
+
+	/**
+	 * Unisce i cluster più vicini basandosi sulla distanza specificata e restituisce un nuovo ClusterSet.
+	 *
+	 * @param distance la distanza utilizzata per determinare i cluster più vicini
+	 * @param data i dati utilizzati per il calcolo della distanza
+	 * @return un nuovo ClusterSet risultante dalla fusione dei cluster più vicini
+	 */
+	public ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException{
 
 		ClusterSet nuovo_clusters_set = new ClusterSet(this.lastClusterIndex - 1); // nuovoClusterSet : conterrà un Cluster in meno rispetto al CLusterSet corrente
 
@@ -62,17 +105,15 @@ class ClusterSet implements Serializable{
 
 		double distanza_minima = Double.MAX_VALUE;  // distanza minima trovata
 	
-		
+
 		for (int i = 0; i < lastClusterIndex; i++) {
 			for (int j = i + 1; j < lastClusterIndex; j++) {
-
-															// this.get(indice) restituisce il cluster memorizzato nell'indice in input di ClusterSet
-				double distanza_corrente = distance.distance(this.get(i), this.get(j), data);  // può essere sia singleLink che averageLink a seconda dall'implementazione
+				double distanza_corrente = distance.distance(this.get(i), this.get(j), data); 
 
 				if (distanza_corrente < distanza_minima) {
 					distanza_minima = distanza_corrente;
-					temp_closest_cluster1 = i; // salvo l'indice del cluster1 con distanza piu piccola temporanea
-					temp_closest_cluster2 = j; // salvo l'indice del cluster2 con distanza piu piccola temporanea
+					temp_closest_cluster1 = i;  // salvo l'indice del cluster1 con distanza piu piccola temporanea
+					temp_closest_cluster2 = j;  // salvo l'indice del cluster2 con distanza piu piccola temporanea
 				}
 			}
 		}

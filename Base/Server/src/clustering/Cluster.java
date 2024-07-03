@@ -6,8 +6,14 @@ import java.util.TreeSet;
 
 import data.Data;
 
+
+/**
+ * La classe Cluster rappresenta un insieme di dati raggruppati.
+ * Questa classe permette di aggiungere, unire e iterare su dati raggruppati.
+ */
 public class Cluster implements Iterable<Integer>, Cloneable, Serializable{	
 
+	/**Insieme ordinato di interi rappresentanti indici dei campioni del dataset */
 	private Set<Integer> clusteredData=new TreeSet<>();
 	
 	//add the index of a sample to the cluster
@@ -27,12 +33,20 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	*/
 
 
-	// forse
+	/**
+	 * Aggiunge l'indice di un campione al cluster.
+	 *
+	 * @param id l'indice del campione da aggiungere
+	 */
 	void addData(int id){
 		clusteredData.add(id);
 	}
 		
-	
+	/**
+	 * Restituisce la dimensione del cluster.
+	 *
+	 * @return il numero di elementi nel cluster
+	 */
 	public int getSize() {
 		return clusteredData.size();
 	}
@@ -70,17 +84,26 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 	*/
 
-	// forse
+	/**
+	 * Restituisce un iteratore per gli elementi del cluster.
+	 *
+	 * @return un iteratore per gli elementi del cluster
+	 */
 	public Iterator<Integer> iterator(){
 		return clusteredData.iterator();
 	}
 
-	// forse
+
+	/**
+	 * Crea una copia del cluster corrente.
+	 *
+	 * @return un clone del cluster corrente
+	 * @throws CloneNotSupportedException se il clone non è supportato
+	 */
 	public Object clone() throws CloneNotSupportedException{
 		return super.clone();
 	}
 
-	// crea un nuovo cluster che è la fusione dei due cluster pre-esistenti
 
 	/* rimpiazzato con iterator 
 	Cluster mergeCluster (Cluster c)
@@ -93,8 +116,14 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 		return newC;
 		
 	}
-		*/
+	*/
 
+	/**
+	 * Crea un nuovo cluster che è la fusione di due cluster pre-esistenti.
+	 *
+	 * @param c il cluster da unire con il cluster corrente
+	 * @return un nuovo cluster risultante dalla fusione
+	 */
 	Cluster mergeCluster(Cluster c){
 
 		Cluster newC = new Cluster();
@@ -126,6 +155,12 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 	*/	
 
+
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa del cluster.
+	 *
+	 * @return una stringa che rappresenta gli elementi del cluster
+	 */
 	public String toString(){
 		String str = "";
 		Iterator<Integer> it = iterator();
@@ -152,6 +187,13 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 	*/
 
+
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa del cluster utilizzando i dati forniti.
+	 *
+	 * @param data i dati da utilizzare per la rappresentazione
+	 * @return una stringa che rappresenta gli elementi del cluster utilizzando i dati
+	 */
 	String toString(Data data){
 		String str = "";
 		Iterator<Integer> it = iterator();

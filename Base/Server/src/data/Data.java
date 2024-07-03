@@ -13,56 +13,28 @@ import database.MissingNumberException;
 import database.TableData;
 import database.TableSchema;
 
+/**
+ * La classe Data rappresenta un insieme di esempi caricati da una tabella di un database.
+ * Fornisce metodi per ottenere informazioni sugli esempi e calcolare le distanze tra essi.
+ * Implementa l'interfaccia Serializable per permettere la serializzazione degli oggetti della classe.
+ */
+
 public class Data implements Serializable{
 
-	private List<Example> data=new ArrayList<>();
-	int numberOfExamples; 
+	/** ArrayList di Example*/
+	private List<Example> data=new ArrayList<>();  
+	/** Numero di Example contentuti nel Dataset */
+	int numberOfExamples;  
 
-	// Example data []; // rappresenta il dataset
-	
-	//rimosso dopo il database 
-	/* 
-	public Data(){
+	// Example data []; // rappresenta il dataset, rimpiazzato con contenitore ArrayList
 
-		//data
-		data = new ArrayList<>();
-
-		Example e=new Example();
-
-		e.add(1.0);
-		e.add(2.0);
-		e.add(0.0);
-		data.add(e);
-		
-		e=new Example();
-		e.add(0.0);
-		e.add(1.0);
-		e.add(-1.0);
-		data.add(e);
-		
-		e=new Example();
-		e.add(1.0);
-		e.add(3.0);
-		e.add(5.0);
-		data.add(e);
-		
-		e=new Example();
-		e.add(1.0);
-		e.add(3.0);
-		e.add(4.0);
-		data.add(e);
-		
-		e=new Example();
-		e.add(2.0);
-		e.add(2.0);
-		e.add(0.0);
-		data.add(e);
-		
-		numberOfExamples=5;
-	}
-	*/
-	
-
+	/**
+	 * Costruttore che inizializza un nuovo oggetto Data leggendo gli esempi da una tabella del database.
+	 *
+	 * @param tableName il nome della tabella da cui leggere gli esempi.
+	 * @throws NoDataException se la tabella non viene trovata o è vuota.
+	 * @throws DatabaseConnectionException se si verifica un problema di connessione al database.
+	 */
 	public Data(String tableName) throws NoDataException, DatabaseConnectionException{
 
 		// connessione al DB
@@ -99,22 +71,80 @@ public class Data implements Serializable{
 			dbacc.closeConnection();     // chiudiamo la connessione al db
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
+	
+	//rimosso dopo il database 
+		/* 
+		public Data(){
 
+			//data
+			data = new ArrayList<>();
+
+			Example e=new Example();
+
+			e.add(1.0);
+			e.add(2.0);
+			e.add(0.0);
+			data.add(e);
+			
+			e=new Example();
+			e.add(0.0);
+			e.add(1.0);
+			e.add(-1.0);
+			data.add(e);
+			
+			e=new Example();
+			e.add(1.0);
+			e.add(3.0);
+			e.add(5.0);
+			data.add(e);
+			
+			e=new Example();
+			e.add(1.0);
+			e.add(3.0);
+			e.add(4.0);
+			data.add(e);
+			
+			e=new Example();
+			e.add(2.0);
+			e.add(2.0);
+			e.add(0.0);
+			data.add(e);
+			
+			numberOfExamples=5;
+		}
+		*/
+
+	/**
+	 * Restituisce il numero di esempi contenuti nel dataset.
+	 *
+	 * @return il numero di esempi.
+	 */
 	public int getNumberOfExamples(){
 		return data.size();
 	}
 
+	/**
+	 * Restituisce l'esempio all'indice specificato.
+	 *
+	 * @param exampleIndex l'indice dell'esempio da restituire.
+	 * @return l'esempio all'indice specificato.
+	 */
 	public Example getExample(int exampleIndex) {
 		return this.data.get(exampleIndex);
 	}
 
 
 	
-
-	public double[][] distance() {
+	/**
+	 * Calcola la matrice delle distanze tra tutti gli esempi.
+	 *
+	 * @return una matrice delle distanze.
+	 * @throws InvalidSizeException se si prova a calcolare la distanza tra due esempi di diversa dimensione.
+	 */
+	public double[][] distance() throws InvalidSizeException{
 		int n = getNumberOfExamples();
 		double[][] distanceMatrix = new double[n][n];
 
@@ -131,7 +161,11 @@ public class Data implements Serializable{
 		return distanceMatrix;
 	}
 
-
+	/**
+	 * Restituisce una rappresentazione in formato stringa dell'insieme di esempi.
+	 *
+	 * @return una stringa che rappresenta l'insieme di esempi.
+	 */
 	public String toString() {
 		String sb="";
 		

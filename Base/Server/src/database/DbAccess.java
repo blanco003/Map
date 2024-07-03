@@ -21,6 +21,7 @@ public class DbAccess {
     private  String PASSWORD = "map";
 
     private Connection conn;
+    
 
     /**
      * Inizializza la connessione al database.

@@ -5,19 +5,22 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Avvia il Server sulla porta 8080 e resta in attesa di richieste da parte dei Client.
- * 
+ * Classe che rappresenta il Server multithread
  */
 public class MultiServer {
 
-    static final int PORT = 8080; /** Porta su cui gira il Server */
+	/** Porta su cui gira il Server */
+    static final int PORT = 8080; 
 
+    /**
+     *  Avvia il Server sulla porta 8080 e resta in attesa di richieste da parte dei Client.
+     *  @throws IOException se si verifica un errore durante l' input/output
+     */
     public void avvia_server() throws IOException{
         
         // l'oggetto ServerSocket (che è un solo) lavora sul thread principale
         // una volta aperto ServerSocket sulla porta specificata, il thread principale avrà solo un compito, quello di accept()
         // ovvero accettare le richieste che arrivano dai vari Client e creare un oggetto Thread dedicato, ServerOneClient, per gestire le richieste singolarmente
-
 
         ServerSocket s = new ServerSocket(PORT);
         System.out.println("Server started : " + s);

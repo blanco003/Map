@@ -9,7 +9,7 @@ import java.net.SocketException;
 
 import clustering.HierachicalClusterMiner;
 import clustering.InvalidDepthException;
-import clustering.InvalidSizeException;
+import data.InvalidSizeException;
 import data.Data;
 import data.NoDataException;
 import database.DatabaseConnectionException;
@@ -18,16 +18,17 @@ import distance.ClusterDistance;
 import distance.SingleLinkDistance;
 
 /**
- * Classe per far comunicare il server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client.
+ * Classe per far comunicare il Server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client
  */
 public class ServerOneClient extends Thread {
 
-    private Socket socket;
+    private Socket socket; /* Socket tramite la quale avviene la comunicazione con il Client */
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    
 
     /**
-     * Costruttore. Inizializza gli attributi socket, in e out. Avvia il thread
+     * Costruttore, inizializza gli attributi socket, in e out ed infine avvia il thread per gestire la richiesta del Client
      * 
      * 
      * @param s Socket per collegarsi al Client e poter comunicare con esso 
@@ -49,7 +50,7 @@ public class ServerOneClient extends Thread {
         System.out.println("\nConnessione accettata");
 
         try{  
-                 // this.in.readObject() legge il messaggio spedito dal Client
+                // this.in.readObject() legge il messaggio spedito dal Client
                 // this.out.writeObject() spedisce il messagio al Client
                 // System.out.println() stampa semplicemente il messaggio a video sul Server
         
@@ -93,7 +94,10 @@ public class ServerOneClient extends Thread {
                     // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException
                     clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());  
 
-                    //invia il tipo di distanza, 1 per SingeLink e 2 per AverageLink
+                    // aggiunto per controllare che clustering venga creato correttamente
+                    this.out.writeObject("OK");
+
+                    //successivamente il client invia il tipo di distanza, 1 per SingeLink e 2 per AverageLink
                     Integer distanza = Integer.parseInt(this.in.readObject().toString());
                     ClusterDistance distance;
                     
@@ -105,14 +109,14 @@ public class ServerOneClient extends Thread {
 
                     clustering.mine(data, distance);
 
-                    
                     System.out.println("Il Dendrogramma è stato appreso con successo");
-                    this.out.writeObject("OK");  // se il clustering e' stato costruito con sucecsso spedisco al client OK
-                    this.out.writeObject(clustering.toString(data));
+                    this.out.writeObject("OK");  
+                    this.out.writeObject(clustering.toString(data));    // spedisco il clustering gia elaborato al client come stringa
 
                     // successivamente il Client invia il nome del file su cui vuole salvare il Dendrogramma
                     String fileName = this.in.readObject().toString();
                     clustering.salva(fileName);
+
                     System.out.println("Il Dendrogramma è stato salvato su file con successo");
 
 
@@ -130,22 +134,16 @@ public class ServerOneClient extends Thread {
                    
                 }
 
-        // se si e' verificata un eccezione in qualsiasi punto spediamo il messaggio di errore al Client
-         
-        }catch(SocketException e){
-            System.out.println("!! Errore durante la connessione");
+        } catch (SocketException sock_e) {
+            System.out.println("Il client ha terminato la connessione.");
+        } catch (InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
+        
             try {
-                this.out.writeObject("!! Errore durante la connessione");
-            } catch (IOException e1) {
-                
+                System.out.println(e.getMessage());
+                this.out.writeObject(e.getMessage() + "\nChiusura connessione al Server");
+            } catch (IOException io_e) {
+                System.out.println(io_e.getMessage());
             }
-        }catch(IOException|ClassNotFoundException|InvalidDepthException|InvalidSizeException e){
-            try {
-                this.out.writeObject(e.getMessage());     // spediamo il messagio di errore al Client
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            System.out.println(e.getMessage());    // stampiamo a video sul Server il messagio di errore
         }
 
         // sia nel caso in cui la comunicazione sia terminata eccezionalemente, sia se è stata eseguita correttamente, chiudiamo la connessione con il Client
@@ -155,7 +153,7 @@ public class ServerOneClient extends Thread {
                 System.out.println("Chiusura connessione Client");
                 socket.close();    // chiudo solo la socket, e non la serversocket
             }catch(IOException e){
-                System.err.println("!!Errore durante la chiusura della connesione");
+                System.err.println("!!Errore durante la chiusura della connessione");
             }
         }
 

@@ -10,25 +10,44 @@ import java.util.List;
 import data.Example;
 import database.TableSchema.Column;
 
+/**
+ * La classe TableData gestisce l'accesso ai dati di una tabella nel database.
+ * Fornisce metodi per recuperare i dati distinti da una tabella del database.
+ */
+
 public class TableData {
     private DbAccess db;
 
-    //  inizializza l’attributo db
+    /**
+	 * Inizializza l'attributo db con l'oggetto DbAccess fornito.
+	 *
+	 * @param db l'oggetto DbAccess per la connessione al database
+	 */
     public TableData(DbAccess db){
         this.db = db;
     }
 
+
+	/**
+	 * Recupera le transazioni distinte dalla tabella specificata.
+	 * Esegue una query sulla tabella per ottenere tutte le colonne definite nello schema
+	 * della tabella e restituisce una lista di esempi distinti.
+	 *
+	 * @param table il nome della tabella da cui recuperare le transazioni
+	 * @return una lista di esempi distinti dalla tabella
+	 * @throws SQLException se si verifica un errore nell'esecuzione della query SQL
+	 * @throws EmptySetException se il risultato della query è vuoto
+	 * @throws DatabaseConnectionException se si verifica un errore nella connessione al database
+	 */
     public List<Example> getDistinctTransazioni(String table) throws SQLException, EmptySetException,DatabaseConnectionException{ 
 
         LinkedList<Example> lista_esempi = new LinkedList<Example>();
 
 		Statement statement;
 
-		
 		TableSchema tSchema = new TableSchema(db, table);     // potrebbe generare DatabaseConnectionException
 		           // restitusce lo schema della tabella con nome in input, ovvero una List di Column, dove ogni Column è costituita da un nome e un tipo
-		
-
+	
 		String query = "SELECT ";  // creazione della stringa che rappresenta la query da effettuare sul db
 
 		for (int i = 0; i < tSchema.getNumberOfAttributes(); i++) {

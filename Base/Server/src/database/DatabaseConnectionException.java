@@ -1,21 +1,22 @@
 package database;
 
 /**
+ * La classe DatabaseConnectionException rappresenta un'eccezione personallizata, sollevata quando si verificano dei fallimenti
+ * durante la connessione al database
  * 
- * Classe per gestire le eccezioni connesse al fallimento della connessione del database
- *
  */
 public class DatabaseConnectionException extends Exception{
 	/**
 	 * Costruttore di classe senza parametri
 	 */
-	DatabaseConnectionException(){}
+	public DatabaseConnectionException(){}
+
 	/**
 	 * Costruttore di classe che ha come input un parametro di tipo stringa
-	 * @param e Stringa che rappresenta il messaggio di errore da poter visualizzare
+	 * @param msg Stringa che rappresenta il messaggio di errore da poter visualizzare
 	 */
-	DatabaseConnectionException(String e){
-		System.out.println(e);
+	public DatabaseConnectionException(String msg){
+		super(msg);
 	}
 
 }

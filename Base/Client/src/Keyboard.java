@@ -9,12 +9,15 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * Classe fornita per gestire l'input da tastiera
+ */
 public class Keyboard {
 	// ************* Error Handling Section **************************
 
-	private static boolean printErrors = true;
+	private static boolean printErrors = true; 
 
-	private static int errorCount = 0;
+	private static int errorCount = 0;  
 
 	// -----------------------------------------------------------------
 	// Returns the current error count.
