@@ -10,7 +10,7 @@ import java.net.Socket;
 public class MultiServer {
 
 	/** Porta su cui gira il Server */
-    static final int PORT = 8080; 
+    private static final int PORT = 8080; 
 
     /**
      *  Avvia il Server sulla porta 8080 e resta in attesa di richieste da parte dei Client.
