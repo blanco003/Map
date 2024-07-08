@@ -135,7 +135,18 @@ public class ServerOneClient extends Thread {
                 }
 
         } catch (SocketException sock_e) {
+        	
             System.out.println("Il client ha terminato la connessione.");
+            
+        } catch (NumberFormatException n_e){
+        	
+        	try {
+                System.out.println("Il client ha inviato un messaggio il cui formato non era corretto.");
+                this.out.writeObject("Il formato del messaggio non è corretto, era atteso un formato numerico ma è stata ricevuta una stringa");
+            } catch (IOException io_e) {
+                System.out.println(io_e.getMessage());
+            }
+        	
         } catch (InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
         
             try {

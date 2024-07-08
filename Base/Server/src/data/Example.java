@@ -127,7 +127,6 @@ public class Example implements Iterable<Double>,Serializable{
    */
 
 
-
    /**
     * Restituisce una rappresentazione in formato stringa della LinkedList di valori reali.
     * La LinkedList è rappresentata da partentesi quadre [] con i valori separati da virgola.

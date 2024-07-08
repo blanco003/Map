@@ -23,8 +23,9 @@ public class Data implements Serializable{
 
 	/** ArrayList di Example*/
 	private List<Example> data=new ArrayList<>();  
+
 	/** Numero di Example contentuti nel Dataset */
-	int numberOfExamples;  
+	private int numberOfExamples;  
 
 	// Example data []; // rappresenta il dataset, rimpiazzato con contenitore ArrayList
 
@@ -70,7 +71,6 @@ public class Data implements Serializable{
 		try {
 			dbacc.closeConnection();     // chiudiamo la connessione al db
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			System.err.println(e.getMessage());
 		}
 	}

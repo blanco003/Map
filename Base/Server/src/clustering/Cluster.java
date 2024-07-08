@@ -38,7 +38,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	 *
 	 * @param id l'indice del campione da aggiungere
 	 */
-	void addData(int id){
+	public void addData(int id){
 		clusteredData.add(id);
 	}
 		
