@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class TableSchema {
 	
+	/** Oggetto che stabilisce la connessione al db. */
 	private DbAccess db;
 
 	/**
@@ -59,8 +60,8 @@ public class TableSchema {
 		}
 	}
 
-
-	List<Column> tableSchema=new ArrayList<Column>();      /* ArrayList di Colonne, rappresentanti lo schema della tabella */
+	/** ArrayList di Colonne, rappresentanti lo schema della tabella */
+	List<Column> tableSchema=new ArrayList<Column>();      
 	
 
 	/**

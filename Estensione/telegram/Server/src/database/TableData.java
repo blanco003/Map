@@ -3,9 +3,12 @@ package database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.plaf.nimbus.State;
 
 import data.Example;
 import database.TableSchema.Column;
@@ -39,7 +42,7 @@ public class TableData {
 	 * @throws EmptySetException se il risultato della query è vuoto
 	 * @throws DatabaseConnectionException se si verifica un errore nella connessione al database
 	 */
-    public List<Example> getDistinctTransazioni(String table) throws SQLException, EmptySetException,DatabaseConnectionException{ 
+    public List<Example> getDistinctTransazioni(String table) throws SQLException, EmptySetException, DatabaseConnectionException{ 
 
         LinkedList<Example> lista_esempi = new LinkedList<Example>();
 
@@ -64,7 +67,7 @@ public class TableData {
 		else{
 			query += " FROM " + table;      // ora query sarà del tipo "SELECT coloumn1, column2, ... FROM <nome tabella in input>"
 
-			statement = this.db.getConnection().createStatement();  // potrebbe generare DatabaseConnectionException
+			statement = this.db.getConnection().createStatement();  // getConnection() potrebbe sollevare un eccezione DatabaseConnectionException
 
 			ResultSet rs = statement.executeQuery(query);      // conterrà il risultato della query eseguita sul db
 
@@ -112,4 +115,149 @@ public class TableData {
 				return lista_esempi;       
 		}
     }
+
+	/**
+	 * Recupera dal database i nomi di tutte le tabelle esistenti.
+	 * @return ArrayList contenente tutti i nomi delle tabelle
+	 * @throws DatabaseConnectionException se si verificano errori durante la connessione al database
+	 */
+	public ArrayList<String> nomi_tabelle_presenti() throws DatabaseConnectionException{
+
+		ArrayList<String> nomi_tabelle = new ArrayList<>();
+		
+		
+			try{
+				Statement s = this.db.getConnection().createStatement(); // getConnection() potrebbe sollevare un eccezione DatabaseConnectionException
+
+				ResultSet r = s.executeQuery("SHOW TABLES FROM MapDb");   // restituisce una tabella con una colonna "Tables_in_mapdb" contenente tutti i nomi delle tabelle presenti
+	
+				while(r.next()) {   //next restituisce true se c'è una tupla da leggere, e fa spostare il cursore sul dbms
+				
+					nomi_tabelle.add(r.getString("Tables_in_mapdb"));
+	
+				}
+				r.close();
+				s.close(); 
+	
+			} catch (SQLException ex) {
+							
+						System.out.println("SQLException: " + ex.getMessage());
+						System.out.println("SQLState: " + ex.getSQLState());
+						System.out.println("VendorError: " + ex.getErrorCode());
+			}
+			 
+		return nomi_tabelle;
+		
+		
+	}
+
+	/**
+	 * Crea una nuova tabella nel database.
+	 * @param table Nome della tabella da creare sul database
+	 * @param numero_esempi_per_transizione Numero di attributi (colonne) della nuova tabella da creare.
+	 * @throws DatabaseConnectionException se si verificano errori durante la connessione al database
+	 */
+	public void crea_nuova_tabella(String table,int numero_esempi_per_transizione) throws DatabaseConnectionException{
+
+        try {
+            Statement s = this.db.getConnection().createStatement();  // getConnection potrebbe sollevare un eccezione DatabaseConnectionException
+
+            String query = "CREATE TABLE "+table+" ( ";  // query che andrà a creare la nuova tabella con numero di esempi scelti dall'utente sul database
+            
+
+			for (int i = 1; i <= numero_esempi_per_transizione; i++) {
+				String tempVar = "X" + i + " DOUBLE";
+				query += tempVar;
+				if (i < numero_esempi_per_transizione) {
+					query += ", ";
+				} else {
+					query += ");";
+				}
+			}
+
+            s.executeUpdate(query);
+			System.out.println("query di creazione tabella creata : "+query);
+
+            System.out.println("La nuova tabella ("+table+") è stata creata correttamente sul db");
+
+            s.close(); 
+
+        } catch (SQLException ex) {
+            
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+    }
+
+
+	/**
+	 * Inserisci l'arrayList in input come tupla all'interno della tabella di nome specificato sul database.
+	 * @param table Nome della tabella in cui inserire la tupla
+	 * @param valori ArrayList di valori della tupla da inserire
+	 * @throws DatabaseConnectionException se si verificano errori durante la connessione al database
+	 */
+	public void inserisci_valori(String table, ArrayList<Double> valori) throws DatabaseConnectionException{
+		try {
+			Statement s = this.db.getConnection().createStatement(); // getConnection() potrebbe sollevare un eccezione DatabaseConnectionException
+	
+			String query = "INSERT INTO " + table + " (";
+	
+			for (int i = 1; i <= valori.size(); i++) {
+				String temp_var = "X" + i;
+				query += temp_var;
+				if (i < valori.size()) {
+					query += ", ";
+				} else {
+					query += ") VALUES (";
+				}
+			}
+		
+			for (int i = 0; i < valori.size(); i++) {
+				query += valori.get(i);
+				if (i < valori.size() - 1) {
+					query += ", ";
+				} else {
+					query += ");";
+				}
+			}
+	
+			System.out.println("query di inserimento tupla creata : " + query);
+
+			s.executeUpdate(query);
+			System.out.println("La transizione è stata inserita correttamente nel database");
+	
+			s.close();
+	
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		}
+	}
+
+	/**
+	 * Elimna la tabella di nome specificato dal database.
+	 * @param table Nome della tabella da eliminare dal database.
+	 */
+	public void elimina_tabella(String table) throws DatabaseConnectionException, SQLException{  
+
+			Statement s = this.db.getConnection().createStatement(); // getConnection() potrebbe sollevare un eccezione DatabaseConnectionException
+	
+			String query = "DROP TABLE " + table + ";";
+	
+	
+			System.out.println("query di elimnazione tabella creata : " + query);
+
+			s.executeUpdate(query);
+			System.out.println("La transizione è stata inserita correttamente nel database");
+	
+			s.close();
+	
+			// si potrebbe generare un eccezione SQLException ma anzichè gestirla la solleviamo in modo che il server
+			// controlli l'errore e capisca se il nome della tabella non era presente o se la connessione è stata interrotta
+			// per altri motivi
+
+	}
+
 }

@@ -1,11 +1,12 @@
 package server;
 
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import clustering.HierachicalClusterMiner;
 import clustering.InvalidDepthException;
@@ -13,6 +14,8 @@ import data.InvalidSizeException;
 import data.Data;
 import data.NoDataException;
 import database.DatabaseConnectionException;
+import database.DbAccess;
+import database.TableData;
 import distance.AverageLinkDistance;
 import distance.ClusterDistance;
 import distance.SingleLinkDistance;
@@ -57,34 +60,227 @@ public class ServerOneClient extends Thread {
                 Data data = null; 
                 HierachicalClusterMiner clustering = null; 
                 
-                Integer choice;
+                
                 boolean datasetTrovato =false;
 
-                while(!datasetTrovato){
 
-                    choice = Integer.parseInt(this.in.readObject().toString());   // il client invia prima uno 0
-                    String tableName = this.in.readObject().toString();         // il client invia al server il nome della tabella del db da cui recuperare il dataset
+                Integer choice = Integer.parseInt(this.in.readObject().toString());  // 0 per caricare dataset , 3 per aggiungere un dataset
 
-				    try{
+                if(choice==0){
 
-                        data = new Data(tableName);
-                        datasetTrovato = true;
-                        System.out.println("Tabella trovata con successo");  
-				        // se ho trovato il dataset spedisco al client OK
-                        this.out.writeObject("OK");
+                    while(!datasetTrovato){
 
-                    }catch(NoDataException|DatabaseConnectionException e){
+                        
+                        String tableName = this.in.readObject().toString();         // il client invia al server il nome della tabella del db da cui recuperare il dataset
 
-                        this.out.writeObject(e.getMessage());   // spediamo al Client il messagio di errore
-                        System.out.println(e.getMessage());  // stampiamo a video sul server il messaggio di errore
+				        try{
+
+                            data = new Data(tableName);
+                            datasetTrovato = true;
+                            System.out.println("Tabella trovata con successo");  
+				            // se ho trovato il dataset spedisco al client OK
+                            this.out.writeObject("OK");
+
+                        }catch(NoDataException|DatabaseConnectionException e){
+
+                            this.out.writeObject(e.getMessage());   // spediamo al Client il messagio di errore
+                            System.out.println(e.getMessage());  // stampiamo a video sul server il messaggio di errore
+
+                        }
+				
+                    }
+
+                }else if(choice==1){  //inserimento nuovo dataset
+
+                    System.out.println("Il client ha scelto di inserire un nuovo dataset sul db");
+
+                    boolean nomeUnicoTrovato =false;
+
+                    DbAccess dbacc = new DbAccess();
+                    TableData tb = new TableData(dbacc);
+                    String new_tableName = "";
+
+                    while(!nomeUnicoTrovato){
+
+                        
+                        new_tableName = this.in.readObject().toString();         // il client invia al server il nome della tabella del db da cui recuperare il dataset
+
+                        ArrayList<String> nomi_tabelle_presenti = tb.nomi_tabelle_presenti(); 
+                        System.out.println("Nomi tabelle trovati : "+nomi_tabelle_presenti.toString());     // tutti i nomi delle tabelle presenti sul db
+                            
+                        if(nomi_tabelle_presenti.contains(new_tableName)){
+                            this.out.writeObject("Esiste già un dataset con questo nome sul db.");
+                            System.out.println("!! Errore : Il nome della tabella che il client vuole inserire ("+new_tableName+") è già in uso");
+
+                        }else{
+                            nomeUnicoTrovato = true;
+                            System.out.println("Il nome della tabella inserito dal client ("+new_tableName+") è unico, si puo procedere con l'inserimento");
+                            this.out.writeObject("OK");
+                        }
+
+                    }     
+			            
+                    // il client ora inserisce il numero di esempi in ogni transizione
+
+                    Integer numero_esempi_per_transizione = null;
+                    boolean numeroEsempiTrovato = false;
+
+                    while (!numeroEsempiTrovato) {
+                        try{
+                            // potrebbe generare NumberFormatException se l'utente non invia un numero intero
+                            numero_esempi_per_transizione = Integer.parseInt(this.in.readObject().toString());
+
+                            if(numero_esempi_per_transizione>0){
+                                numeroEsempiTrovato = true;
+                                this.out.writeObject("OK");
+                            }else{
+                                this.out.writeObject("Il numero degli esempi deve essere positivo e maggiore di 0 !");
+                            }
+                        }catch(NumberFormatException e){
+                            this.out.writeObject("Il formato del messaggio inviato non è valido, perfavore inserisci un numero intero positivo.");
+                        }
 
                     }
-				
-                }
-                
+
+                    // creazione della tabella sul database
+                    tb.crea_nuova_tabella(new_tableName, numero_esempi_per_transizione);
+                    this.out.writeObject("OK");
+
+                    // il client invia le transizioni una ad una nel formato "x1,x2,x3,...,xn", successivamente il server la converte in singoli valori double
+                    // e la inserisce nella tabella
+
+                    boolean fineInserimento = false;
+
+                    while(!fineInserimento){
+
+                        String singola_transizione = this.in.readObject().toString();
+                        System.out.println("Ricevuta transizione : "+singola_transizione);
+
+                        // converto la transizione ricevuta come stringa in un array di Double 
+
+                        ArrayList<Double> esempi_singoli_double = new ArrayList<>();
+
+                        String[] stringArray = singola_transizione.split(",");
+
+                        boolean formatoNonValido = false;
+                        String esempioNonValido = "";
+
+
+                        for (String num : stringArray) {
+                            try {
+                                Double number = Double.parseDouble(num.trim());  //rimuove eventuali spazi bianchi all'inizio e alla fine della stringa num
+                                esempi_singoli_double.add(number); 
+                            } catch (NumberFormatException e) {
+
+                                if(num.isEmpty()){    // se il valore dell'esempio è vuoto assumiamo sia 0.0
+                                    esempi_singoli_double.add(0.0);
+                                }else{
+                                    System.err.println("Il formato dell'esempio (" + num+") non è valido");
+                                    esempioNonValido = num;
+                                    formatoNonValido = true;
+                                    break;
+                                }
+                                
+                            }
+                        }
+
+                        if(formatoNonValido){
+                            this.out.writeObject("Il formato dell'esempio (" + esempioNonValido+") non è valido");
+                            continue;
+                        }else if(esempi_singoli_double.size()==0){
+                            this.out.writeObject("La transizione inserita non contiene esempi.");
+                            continue;
+                        }else if(esempi_singoli_double.size() > numero_esempi_per_transizione){
+                            this.out.writeObject("La transizione inserita ha più esempi del numero specificato precedentemente."); 
+                            continue; 
+                        }else if(esempi_singoli_double.size() < numero_esempi_per_transizione){
+                            this.out.writeObject("La transizione inserita ha meno esempi del numero specificato precedentemente.");
+                            continue; 
+                        }else{
+                            tb.inserisci_valori(new_tableName, esempi_singoli_double); // se tutto è andato a buon fine costruiamo la query e la eseguiamo sul db
+                            this.out.writeObject("OK");
+                        }
+
+                        // viene chiesto all'utente se vuole continuare ad inserire transizioni nel dataset
+
+                        String risposta = "";
+                        boolean rispostaValida = false;
+
+                        while(!rispostaValida){
+                            risposta = this.in.readObject().toString();
+
+                            if(risposta.equalsIgnoreCase("no")){
+                                rispostaValida = true;
+                                fineInserimento = true;
+                                System.out.println("L'utente ha finito di inserire i valori nel dataset correttamente");
+                                this.out.writeObject("OK DATASET");
+                            }else if(risposta.equalsIgnoreCase("si")){
+                                rispostaValida = true;
+                                System.out.println("L'utente ha scelto di continuare ad inserire transizioni");
+                            }else{
+                                System.out.println("L'utente ha inserito una risposta non valida");
+                                this.out.writeObject("La risposta non è valida, perfavore inserisci (Si/No)");
+                            }
+                        }
+
+                        // se risponde si l'iterazione continua
+                        // se risponde con un messaggio diverso sia da Si che No lato Utente viene richiesto di inserire un input valido
+
+                       
+                    }
+
+                    data = new Data(new_tableName);
+                    datasetTrovato = true; 
+                           
+                    
+                    dbacc.closeConnection(); // chiudiamo la connessione al db
+                                     
+				                       
+                }else if(choice == 5){  // l'utente vuole eliminare un dataset
+
+                    System.out.println("Il Client ha scelto di eliminare un dataset");
+
+                    DbAccess dbacc = new DbAccess();
+                    TableData tb = new TableData(dbacc);
+                    String table = "";
+
+                    boolean tabellaEliminata = false;
+
+                    while (!tabellaEliminata) {
+
+                        table = this.in.readObject().toString();     // il client invia il nome della tabella che vuole eliminare dal db
+
+                        try {
+                            tb.elimina_tabella(table);
+                            this.out.writeObject("OK");
+                            tabellaEliminata = true;
+                            System.out.println("Il client ha eliminato con sucesso la tabella : "+table);
+                            
+                        } catch (SQLException e) {
+                            
+                            // se la tabella non esiste sql restituisce l'errore " ERROR 1051 (42S02): Unknown table 'mapdb.exampletab' "
+
+                            if(e.getErrorCode()==1051){
+                                this.out.writeObject("NON ESISTE");
+                                System.out.println("Il client ha inserito un nome di tabella che non esiste nel db : "+table);
+                            }else{
+                                this.out.writeObject("Si sono verificati errori durante la connessione al database");
+                                System.out.println("Si sono verificati errori durante la connessione al database");
+                            }
+                        }
+                    }
+
+                    dbacc.closeConnection();    //chiudiamo la connessione al server
+                   
+                    return;  // se l'utente vuole continuare ad interagire deve ristabilire la connessione al server
+                    
+
+                } 
+
+                // il client inserire (2) per apprendere il Dendrogramma da db o (3) per caricare il Dendrogramma da File 
                 choice = Integer.parseInt(this.in.readObject().toString());
 
-                if(choice == 1){  // apprendere il Dendrogramma da Database
+                if(choice == 2){  // apprendere il Dendrogramma da Database
 
                     System.out.println("Il Client ha scelto di apprendere il Dendrogramma da Database");
                     
@@ -97,13 +293,15 @@ public class ServerOneClient extends Thread {
                     // aggiunto per controllare che clustering venga creato correttamente
                     this.out.writeObject("OK");
 
-                    //successivamente il client invia il tipo di distanza, 1 per SingeLink e 2 per AverageLink
+                    //successivamente il client invia il tipo di distanza, (1) per SingeLink e (2) per AverageLink
                     Integer distanza = Integer.parseInt(this.in.readObject().toString());
                     ClusterDistance distance;
                     
                     if(distanza==1){
+                        System.out.println("Il client ha scelto la distanza SingleLink");
                         distance = new SingleLinkDistance();
                     }else{
+                        System.out.println("Il client ha scelto la distanza AverageLink");
                         distance = new AverageLinkDistance();
                     }
 
@@ -120,7 +318,7 @@ public class ServerOneClient extends Thread {
                     System.out.println("Il Dendrogramma è stato salvato su file con successo");
 
 
-                }else{  // carica del Dendrogramma da File
+                }else if(choice==3){  // carica del Dendrogramma da File
 
                     System.out.println("Il Client ha scelto di caricare il Dendrogramma da File");
 
@@ -134,11 +332,12 @@ public class ServerOneClient extends Thread {
                    
                 }
 
+
         } catch (SocketException sock_e) {
         	
-            System.out.println("Il client ha terminato la connessione.");
+            System.out.println("Il client ha terminato la connessione : "+sock_e.getMessage());
             
-        } catch (NumberFormatException n_e){
+        } catch (NumberFormatException n_e){  //TODO: si potrebbe richiedere una nuova profondita aziche terminare // ad esempio quando inserisce la profondita 
         	
         	try {
                 System.out.println("Il client ha inviato un messaggio il cui formato non era corretto.");
@@ -147,7 +346,7 @@ public class ServerOneClient extends Thread {
                 System.out.println(io_e.getMessage());
             }
         	
-        } catch (InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
+        } catch (InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException | DatabaseConnectionException | NoDataException | SQLException e) {
         
             try {
                 System.out.println(e.getMessage());
@@ -162,9 +361,9 @@ public class ServerOneClient extends Thread {
 
             try{
                 System.out.println("Chiusura connessione Client");
-                socket.close();    // chiudo solo la socket, e non la serversocket
+                socket.close();    // chiudo solo la socket, e non la serversocket, dunque viene chiusa solo la connession al Client ma il server rimane in ascolto
             }catch(IOException e){
-                System.err.println("!!Errore durante la chiusura della connessione");
+                System.err.println("!!Errore durante la chiusura della connessione con il Client");
             }
         }
 

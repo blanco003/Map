@@ -1,0 +1,10 @@
+Modifiche al sever rispetto alla versione base: 
+
+TableData :
+- aggiunta nomi_tabelle_presenti() per recuperare i nomi di tutte le tabelle presenti sul db.
+- aggiunta crea_nuova_tabella(nome_tabella,num_esempi) che crea una nuova tabella sul db.
+- aggiunta inserisci_valori(nome_tabella,valori) che inserisce la tupla nella tabella sul db.
+- aggiunta elimina_tabella(nome_tabella) che elimina la tabella dal db
+
+ServerOneClient :
+- il client invia 0 per caricare un dataset gia esistente, 1 per creare un nuovo dataset (tabella sul db), 5 per eliminare una tabella dal db

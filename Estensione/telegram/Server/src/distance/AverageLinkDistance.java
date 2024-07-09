@@ -27,7 +27,6 @@ public class AverageLinkDistance implements ClusterDistance {
      * @return la distanza media tra i due cluster
      * @throws InvalidSizeException se si prova a calcolare la distanza tra due esempi di diversa dimensione.
      */
-	
     public double distance(Cluster c1, Cluster c2, Data d) throws InvalidSizeException{
 
         double average = 0.0;

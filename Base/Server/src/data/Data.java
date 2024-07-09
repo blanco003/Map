@@ -1,6 +1,5 @@
 package data;
 
-import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,17 +8,15 @@ import java.util.List;
 import database.DatabaseConnectionException;
 import database.DbAccess;
 import database.EmptySetException;
-import database.MissingNumberException;
 import database.TableData;
 import database.TableSchema;
 
 /**
  * La classe Data rappresenta un insieme di esempi caricati da una tabella di un database.
  * Fornisce metodi per ottenere informazioni sugli esempi e calcolare le distanze tra essi.
- * Implementa l'interfaccia Serializable per permettere la serializzazione degli oggetti della classe.
  */
 
-public class Data implements Serializable{
+public class Data{
 
 	/** ArrayList di Example*/
 	private List<Example> data=new ArrayList<>();  
@@ -123,7 +120,7 @@ public class Data implements Serializable{
 	 * @return il numero di esempi.
 	 */
 	public int getNumberOfExamples(){
-		return data.size();
+		return this.numberOfExamples;
 	}
 
 	/**

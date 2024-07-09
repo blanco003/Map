@@ -1,6 +1,5 @@
 package data;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
  * manipolare e calcolare la distanza tra due liste.
  */
 
-public class Example implements Iterable<Double>,Serializable{
+public class Example implements Iterable<Double>{
 	
     private List<Double> example; 
     

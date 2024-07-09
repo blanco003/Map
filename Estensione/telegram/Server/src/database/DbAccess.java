@@ -28,8 +28,7 @@ public class DbAccess {
      *
      * @throws DatabaseConnectionException Eccezione lanciata se la connessione al database fallisce.
      */
-    public void initConnection() throws DatabaseConnectionException
-    {
+    public void initConnection() throws DatabaseConnectionException{
         try {
             Class.forName(DRIVER_CLASS_NAME);
         } catch(ClassNotFoundException e) {

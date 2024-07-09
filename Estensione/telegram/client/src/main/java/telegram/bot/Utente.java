@@ -26,20 +26,34 @@ public class Utente {
      */
     public boolean connesso = false;    
 
-
-
+    
     /*  STATI POSSIBILE PER L'UTENTE
+     *  
      *  default : ha iniziato la conversazione
+     * 
      *  carica_dati : ha scelto di caricare i dati
+     * 
+     *  inseriento_nome_tabella : inserisce il nome della tabella di cui vuole caricare il dataset finche non inserisce uno valido
      *  scelta : ha caricato con successo i dati e deve effetuare la scelta tra file / db
-     *  attesa_risposta : l'utente ha eseguito un comando per stampare il menu a bottoni ma non ha ancora premuto nessuno
+     *  attesa_risposta : l'utente ha eseguito un comando per stampare il menu a bottoni ma non ha ancora premuto nessun bottone
+     * 
      *  caricamento_file : ha scelto di caricare il file
      *  file_caricato : ha caricato il file e stampato il dendrogramma (non puo fare piu niente se non ricomubciare)
+     * 
      *  inserisci_profondita : ha scelto di apprendere il dendrogramma dal db e ora deve inserire la profondita
      *  controlla_pronfondita : a seconda di quale profondita ha inserito viene stampato il dendrogramma (TODO: SI POTREBBE TOGLIERE)
      *  scelta_distanza : la profondita è stata inserita correttamente e si chiede all'utente di sceliere la distanza tra single e average
      *  salvataggio : l'utente deve inserire il nome del file per il salvataggio
      *  file_caricato : ha caricato il file e stampato il dendrogramma (non puo fare piu niente se non ricomubciare)
+     * 
+     *  aggiungi_nome_tabella : l'utente sceglie di inserire un nuovo dataset al db
+     *  inserimento_nome_nuova_tabella : inserisce il nome della tabella del nuovo datasetfinche non inserisce un nome che non è gia presente nel db
+     *  inserimento_numero_esempi : inserisce il numero di esempi in ogni transizione del nuovo dataset da inserire
+     *  inserimento_dataset : l'utente inserisce la transizione da inserire nel nuovo dataset
+     *  continua_inserimento : viene chiesto all'utente se vuole continuare ad inserire transizioni al dataset
+     * 
+     *  elimna_dataset : l'utente sceglie di eliminare un dataset dal db e inserisce un nome di tabella da elimnare
+     *  inserimento_elimina_dataset : l'utente inserisce nuovamente un nome di tabella da eliminare perche prima qualcosa è andato storto
      */
 
 
