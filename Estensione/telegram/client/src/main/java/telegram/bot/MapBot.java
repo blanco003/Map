@@ -25,8 +25,6 @@ import java.time.format.DateTimeFormatter;
 
     //TODO: entrambi i server scrivere meglio il sollevamento di DATABASEXCEPTION
 
-    //TODO: funzione per eliminare dataset già creata come e dove inserirla?
-
     //TODO: anziche fare diverse funzioni invia_sclelta fare una che prende come parametro le scelte
 
 /**
@@ -85,7 +83,7 @@ public class MapBot extends TelegramLongPollingBot {
             
             if (message_text.equals("/start")) {        // l'utente ha appena inziato la conversazione
 
-                invia_messaggio("Benvenuto su map, perfavore collegati al server tramite il comando /connect", utente);
+                invia_messaggio("Benvenuto su map, per favore collegati al server tramite il comando /connect", utente);
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (default)");
                 utente.setStato("default");
                 
@@ -101,21 +99,21 @@ public class MapBot extends TelegramLongPollingBot {
 
                 try{
                     collega(utente,"127.0.0.1", 8080);
-                    invia_messaggio("Connessione con il server andanta a buon fine", utente);
-                    invia_scelta_dataset(utente, "Coda desideri fare ?");
+                    invia_messaggio("Connessione con il server andata a buon fine", utente);
+                    invia_scelta_dataset(utente, "Cosa desideri fare ?");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
                     utente.setStato("attesa_risposta");
 
                 }catch(IOException e){
                     System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , Eccezione : "+e.getMessage());
-                    invia_messaggio("La connessione al server non è andata a buon fine, perfavore verifica il server sia online e riprova /connect", utente);
+                    invia_messaggio("La connessione al server non è andata a buon fine, per favore verifica il server sia online e riprova /connect", utente);
                 }
 
                 
             }else if (message_text.equals("/data")) {
 
                 if(!utente.getConnesso()){
-                    invia_messaggio("Non sei ancora collegato ancora al server, perfavore connettiti eseguendo il comando /connect", utente);
+                    invia_messaggio("Non sei ancora collegato ancora al server, per favore connettiti eseguendo il comando /connect", utente);
                     return;
                 }
 
@@ -132,7 +130,7 @@ public class MapBot extends TelegramLongPollingBot {
 
              } else if (message_text.equals("/scelta")) { 
                 if(!utente.getConnesso()){
-                    invia_messaggio("Non sei ancora collegato ancora al server, perfavore connettiti eseguendo il comando /connect", utente);
+                    invia_messaggio("Non sei ancora collegato ancora al server, per favore connettiti eseguendo il comando /connect", utente);
                     return;
                 }
                     if (!utente.getDataTrovati()) {
@@ -145,7 +143,7 @@ public class MapBot extends TelegramLongPollingBot {
             } else if(message_text.equals("/distanza")){
 
                 if(!utente.getConnesso()){
-                    invia_messaggio("Non sei ancora collegato ancora al server, perfavore connettiti eseguendo il comando /connect", utente);
+                    invia_messaggio("Non sei ancora collegato ancora al server, per favore connettiti eseguendo il comando /connect", utente);
                     return;
                 }
 
@@ -161,7 +159,7 @@ public class MapBot extends TelegramLongPollingBot {
             }else if(message_text.equals("/restart")){  
 
                 if(!utente.getConnesso()){
-                    invia_messaggio("Non sei ancora collegato ancora al server, perfavore connettiti eseguendo il comando /connect", utente);
+                    invia_messaggio("Non sei ancora collegato ancora al server, per favore connettiti eseguendo il comando /connect", utente);
                     return;
                 }
                 
@@ -182,7 +180,7 @@ public class MapBot extends TelegramLongPollingBot {
             } else if(message_text.equals("/aggiungi")){
                     
                 if(!utente.getConnesso()){
-                    invia_messaggio("Non sei ancora collegato ancora al server, perfavore connettiti eseguendo il comando /connect", utente);
+                    invia_messaggio("Non sei ancora collegato ancora al server, per favore connettiti eseguendo il comando /connect", utente);
                     return;
                 }
 
@@ -325,7 +323,7 @@ public class MapBot extends TelegramLongPollingBot {
                     } catch (IOException e) {
                         // TODO : stampa bene eccezione
                     }
-                    invia_messaggio("Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconneso perfavore riconnettiti tramite il comando /connect", utente);
+                    invia_messaggio("Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconneso per favore riconnettiti tramite il comando /connect", utente);
                 }
 
                 
@@ -363,9 +361,9 @@ public class MapBot extends TelegramLongPollingBot {
             deleteDataOnServer(utente, message_text);
         }
      
-        else{ // in tutti gli altri casi rispediamo quello che ha inserito
+        else{ // in tutti gli altri casi rispediamo quello che ha inserito specificando che il comando non è riconosciuto
             invia_messaggio("Comando non riconosciuto : "+message_text, utente);
-            //TODO: magari inviare un messaggio con tutti i comandi e cosa puo fare
+           
         }
     }
 
@@ -386,7 +384,7 @@ public class MapBot extends TelegramLongPollingBot {
             long chat_id = update.getCallbackQuery().getMessage().getChatId();
             Utente temp_utente = new Utente(chat_id, "", null, "", false, false);
             modifica_messagio(temp_utente, message_id, "Non puoi piu considerare questo messaggio !");
-            invia_messaggio("Non puoi rispondere a vecchi messaggi ! Perfavore inzia connettendoti al server tramite il comando /connect", temp_utente);
+            invia_messaggio("Non puoi rispondere a vecchi messaggi ! per favore inzia connettendoti al server tramite il comando /connect", temp_utente);
             return;
         }
 
@@ -515,7 +513,7 @@ public class MapBot extends TelegramLongPollingBot {
 
                 scollega(utente);
                 
-                invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconneterti tramite il comando /connect", utente);
+                invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
             }
             
         } catch (IOException|ClassNotFoundException e) {
@@ -652,14 +650,14 @@ public class MapBot extends TelegramLongPollingBot {
                 invia_messaggio(risposta, utente); // inviamo all'utente il messaggio di errore
 
                 scollega(utente);
-                invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconneterti tramite il comando /connect", utente);
+                invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
             }
 
        } catch (Exception e) {
         System.out.println(data_corrente()+" - Utente : ("+utente.getNomeUtente()+") , Eccezione : " + e.getMessage());
             try{
                 scollega(utente);
-                invia_messaggio("Qualcosa è andato storto durante la comunicazione con il server, perfavore riconnettiti tramite il comando /connect", utente);
+                invia_messaggio("Qualcosa è andato storto durante la comunicazione con il server, per favore riconnettiti tramite il comando /connect", utente);
             }catch(IOException e1){
                 System.out.println(data_corrente()+" - Utente : ("+utente.getNomeUtente()+") , Eccezione : " + e1.getMessage());
             }
@@ -693,7 +691,7 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (salvataggio)");  
                 utente.setStato("salvataggio");
 
-                invia_messaggio("Inserisci il nome dell'archio su cui salvare il Dendrogramma (compreso di estensione)",utente);
+                invia_messaggio("Inserisci il nome dell'archivio su cui salvare il Dendrogramma (compreso di estensione)",utente);
     
             } else {
 
@@ -950,7 +948,7 @@ public class MapBot extends TelegramLongPollingBot {
 
             if(risposta.equals("OK")){	
 
-                invia_messaggio("Numero di esempi per ogni transizioni inviato correttamtente al server.", utente);    
+                invia_messaggio("Numero di esempi per ogni transizioni inviato correttamente al server.", utente);    
                 String risposta_creazione_tabella_db = (String) (utente.getConnessione().getObjectInputStream().readObject());
 
                 if(risposta_creazione_tabella_db.equals("OK")){	
@@ -959,11 +957,11 @@ public class MapBot extends TelegramLongPollingBot {
                     utente.setStato("inserimento_dataset");
                     invia_messaggio("La tabella è stata creata correttamente sul database.", utente);
 
-                    // costruiamo il formato X1,X2,..Xn considerando il numero corretto di esempi scelti dall'utente
+                    // costruiamo il formato x1,x2,..xn considerando il numero corretto di esempi scelti dall'utente
                     String formato = "";
                     int num = Integer.parseInt(message_txt);
                     for(int i=1;i<=num;i++){
-                        formato += "X"+i;
+                        formato += "x"+i;
                         if(i < num) {
                             formato += ",";
                         }  
@@ -973,7 +971,7 @@ public class MapBot extends TelegramLongPollingBot {
                 }else{
                     invia_messaggio(risposta_creazione_tabella_db, utente); 
                     scollega(utente);
-                    invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconneterti tramite il comando /connect", utente);
+                    invia_messaggio("Sei stato disconneso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
                 }
 
             }else{
@@ -1009,7 +1007,7 @@ public class MapBot extends TelegramLongPollingBot {
                 utente.setStato("continua_inserimento");
             }else{
                 invia_messaggio(risposta, utente);
-                invia_messaggio("Perfavore inserisci una nuova transizione rispettando il formato specificato", utente);
+                invia_messaggio("per favore inserisci una nuova transizione rispettando il formato specificato", utente);
                 
             }
 
@@ -1020,7 +1018,7 @@ public class MapBot extends TelegramLongPollingBot {
             } catch (IOException e1) {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , Eccezione : (" +e1.getMessage());
             }
-            invia_messaggio("Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso perfavore ricconnettiti tramite il comando /connect", utente);
+            invia_messaggio("Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso per favore ricconnettiti tramite il comando /connect", utente);
 
         }
     }
@@ -1033,7 +1031,7 @@ public class MapBot extends TelegramLongPollingBot {
      */
     private void deleteDataOnServer(Utente utente, String tableName) {
 
-        invia_messaggio("Processo elimazione dataset in corso...", utente);
+        invia_messaggio("Processo eliminazione dataset in corso...", utente);
 
         try {
 
@@ -1055,7 +1053,7 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  (inserimento_elimina_dataset)");
                 utente.setStato("inserimento_elimina_dataset"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio("Il nome della tabella che hai inserito non eiste nel database.", utente);
+                invia_messaggio("Il nome della tabella che hai inserito non esiste nel database.", utente);
                 invia_messaggio("Inserisci nuovamente il nome della tabella da eliminare :",utente);  // chiediamo di reinserire un altro nome di tabella
             
             }else{
