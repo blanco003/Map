@@ -128,7 +128,7 @@ public class ServerOneClient extends Thread {
                                 numeroEsempiTrovato = true;
                                 this.out.writeObject("OK");
                             }else{
-                                this.out.writeObject("Il numero degli esempi deve essere positivo e maggiore di 0 !");
+                                this.out.writeObject("Il numero degli esempi deve essere maggiore di 0, non ha senso creare un dataset in cui le transizioni hanno un numero di esempi minore ad 1");
                             }
                         }catch(NumberFormatException e){
                             this.out.writeObject("Il formato del messaggio inviato non è valido, perfavore inserisci un numero intero positivo.");
@@ -169,7 +169,7 @@ public class ServerOneClient extends Thread {
                                 if(num.isEmpty()){    // se il valore dell'esempio è vuoto assumiamo sia 0.0
                                     esempi_singoli_double.add(0.0);
                                 }else{
-                                    System.err.println("Il formato dell'esempio (" + num+") non è valido");
+                                    System.err.println("Il formato dell'esempio (" + num+") non è valido, deve essere numerico");
                                     esempioNonValido = num;
                                     formatoNonValido = true;
                                     break;
@@ -288,7 +288,7 @@ public class ServerOneClient extends Thread {
                             profondita = Integer.parseInt(this.in.readObject().toString()); // potrebbe generare NumberFormatException se non è in formato numerico
 
                             if(profondita<1){
-                                this.out.writeObject("Attenzione, la profondità deve essere maggiore di 0");
+                                this.out.writeObject("Attenzione, la profondità deve essere maggiore di 0 !");
                             }else{
                             // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException
                             clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());  

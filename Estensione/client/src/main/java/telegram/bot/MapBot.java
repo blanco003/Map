@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-    //TODO: verificare se aggiornare lo stato la seconda volta che prova
 
 /**
  * Classe per configurare il bot telegram.
@@ -28,6 +27,8 @@ public class MapBot extends TelegramLongPollingBot {
 
     /** Contenitore dei diversi utenti che stanno interagendo con il bot, identificati dall'id della chat */
     private HashMap<Long, Utente> utenti = new HashMap<>();
+
+    //TODO : attributi token e nome
 
     /**
      * Costruttore del bot
@@ -52,7 +53,13 @@ public class MapBot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()) {
             String utente = update.getCallbackQuery().getFrom().getUserName();
             System.out.println(data_corrente()+" - Utente : ("+utente+") - Ricevuta callback query: " + update.getCallbackQuery().getData());
-            gestisci_chiamata_di_ritorno(update);
+            
+            try {
+                gestisci_chiamata_di_ritorno(update);
+            } catch (IOException e) {
+                System.out.println(data_corrente()+" - Utente : ("+ utente+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
+                e.printStackTrace();
+            }
 
         } else if (update.hasMessage() && update.getMessage().hasText()) {
 
@@ -60,8 +67,10 @@ public class MapBot extends TelegramLongPollingBot {
             long chat_id = update.getMessage().getChatId();
             Utente utente = null;
     
+            // se l'utente ha già comunicato con il bot lo recuperiamo dall'hasmap, altrimenti inzializziamo un nuovo utente e lo inseriamo nell'hashmap
+
             if( utenti.containsKey(chat_id)){
-                utente= utenti.get(chat_id);
+                utente = utenti.get(chat_id);
             }else{
                 String nome_utente = update.getMessage().getFrom().getUserName();
                 utente = new Utente(chat_id, nome_utente, null, "null");
@@ -120,10 +129,6 @@ public class MapBot extends TelegramLongPollingBot {
                 }
 
                 
-            }else if(utente.getStato().equals("attesa_risposta")){   // è presente un menu a bottoni in cui l'utente non ha ancora effettuato una scekta
-                
-                invia_messaggio("Prima di procedere effettua una scelta al messaggio precedente.", utente);
-
             }else{   
                 // se non stati eseguiti comandi, ma è stato ricevuto del semplice testo dobbiamo controllare 
                 // in quale stato si trova l'utente ed effettuare la gestione corrispondente
@@ -131,46 +136,34 @@ public class MapBot extends TelegramLongPollingBot {
                     gestisci_input(utente, message_text);
                 } catch (IOException|ClassNotFoundException e) {
                     System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
     }
+
+    //TODO togliere inserimento nome tabella e inserisci nome file e aggiungi nome tabella , inseriemento elimina dataset
 
     /**
      * Gestisce l'input ricevuto dall'utente, quando esso non è un comando telegram prestabilito ma è semplice testo.
      * @param utente Utente che sta interagendo con il bot
      * @param message_text Messaggio inviato dall'utente
      */
-    private void gestisci_input(Utente utente, String message_text) throws IOException,ClassNotFoundException{
+    private void gestisci_input(Utente utente, String message_text) throws IOException, ClassNotFoundException{
         
         if (utente.getStato().equals("carica_dati")) {
-
-            // se l'utente ha eseguito il comando per caricare un dataset già presente sul db allora spediamo al server uno 0 
-            utente.getConnessione().getObjectOutputStream().writeObject(0);
-
-            loadDataOnServer(utente, message_text);
-
-        } else if(utente.getStato().equals("inserimento_nome_tabella")){
 
             /* l'utente aveva gia eseguito il comando per scegliere di caricare un dataset già presente sul db dunque il server è ancora in attesa che l'utente
              * inserisca un nome di tabella valido quindi non dobbiamo rispedire un altro 0 ma viene richiesto all'utente ripetutamente il nome della 
              * tabella della quale caricare il dataset finchè non inserisce un nome di tabella esistente */
 
-             loadDataOnServer(utente, message_text);
+            loadDataOnServer(utente, message_text);
 
         }else if(utente.getStato().equals("caricamento_file")){
-
-            // se l'utente ha scelto di caricare il dendrogramma da file allora spediamo al server un 3 
-            utente.getConnessione().getObjectOutputStream().writeObject(3);
-
-            loadDedrogramFromFileOnServer(utente,message_text);
-
-        } else if(utente.getStato().equals("inserimento_nome_file")){
 
             /* l'utente aveva gia eseguito il comando per scegliere di caricare un dataset da file dunque il server è ancora in attesa che l'utente
              * inserisca un nome di file valido quindi non dobbiamo rispedire un altro 3 ma viene richiesto all'utente ripetutamente il nome  
              * di un file finchè non inserisce un file valido (esistente e con un dendrogramma salvato) */
-
             loadDedrogramFromFileOnServer(utente,message_text);
 
         } else if(utente.getStato().equals("inserisci_profondita")){
@@ -197,21 +190,14 @@ public class MapBot extends TelegramLongPollingBot {
             salva_file(utente,message_text);
 
 
-        } else if(utente.getStato().equals("aggiungi_nome_tabella")){ 
-
-            // se l'utente ha eseguito il comando per inserire un nuovo dataset sul db allora spediamo al server un 1
-            utente.getConnessione().getObjectOutputStream().writeObject(1);
-            
-            controlla_univocita_nome_tabella(utente, message_text);
-
-        }else if(utente.getStato().equals("inserimento_nome_nuova_tabella")){
+        } else if(utente.getStato().equals("inserimento_nome_nuova_tabella")){
 
             /* l'utente aveva già inserito il comando per inserire un nuovo dataset quindi il server è ancora in attesa di un nome del dataset
              * dunque non dobbiamo rispedire un altro 1 ma viene richiesto all'utente di inserire un nome di tabella nuovo finche
              * non inserisce uno non ancora esistente.
              */
              
-            controlla_univocita_nome_tabella(utente, message_text);
+            controlla_univocita_nome_tabella(utente, message_text); // non restituisce true o false, ma se il nome è valido aggiorna lo stato dell'utente
 
         }else if(utente.getStato().equals("inserimento_numero_esempi")){
 
@@ -221,7 +207,7 @@ public class MapBot extends TelegramLongPollingBot {
 
         }else if(utente.getStato().equals("inserimento_dataset")){
 
-            // l'utente inserisce la prima transizione nel nuovo dataset
+            // l'utente invia la transizione da inserire nel nuovo dataset
 
             invia_transizione(utente,message_text);
 
@@ -229,7 +215,8 @@ public class MapBot extends TelegramLongPollingBot {
 
             // l'utente continua ad inserire transizioni nel nuovo dataset
 
-            utente.getConnessione().getObjectOutputStream().writeObject(message_text); 
+            utente.getConnessione().getObjectOutputStream().writeObject(message_text);
+            // il messaggio ricevuto dall'utente contiene la risposta alla domanda se l'utente vuole continuare ad inserire un'altra transizione   
 
             if(message_text.equalsIgnoreCase("si")){
 
@@ -249,7 +236,7 @@ public class MapBot extends TelegramLongPollingBot {
  
 
                 if(risposta.equals("OK DATASET")){  // il dataset è stato caricato correttamente sul db
-                    invia_messaggio("Il dataset è stato caricato correttamente, puoi procedere con la scelta del tipo di caricamento", utente);
+                    invia_messaggio("Il dataset è stato creato correttamente sul database ed è stato caricato, puoi procedere con la scelta del tipo di caricamento", utente);
                     invia_scelta_caricamento(utente, "Esegui una scelta di caricamento");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
                     utente.setStato("attesa_risposta");
@@ -268,43 +255,36 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") -->  rimane ("+ utente.getStato()+")");
             }
 
-           
 
         } else if(utente.getStato().equals("elimina_dataset")){
-            
-            /* se l'utente ha eseguito il comando per eliminare un dataset dal db allora spediamo al server un 5 */
-            utente.getConnessione().getObjectOutputStream().writeObject(5);
-  
-            deleteDataOnServer(utente, message_text);
-
-        } else if(utente.getStato().equals("inserimento_elimina_dataset")){
 
             /* l'utente aveva gia eseguito il comando per eliminare un dataset dal db dunque il server è ancora in attesa che l'utente
              * inserisca un nome di tabella valido da eliminare quindi non dobbiamo rispedire un altro 5 ma viene richiesto all'utente ripetutamente il nome della 
              * tabella da eliminare finchè non inserisce un nome di tabella esistente */
-
+            
+        
             deleteDataOnServer(utente, message_text);
 
-        }   else if(utente.getStato().equals("file_caricato") || utente.getStato().equals("file_salvato")){
+        } else if(utente.getStato().equals("file_caricato") || utente.getStato().equals("file_salvato")){
 
             invia_messaggio("Hai già caricato il dataset e stampato il Dendrogramma correttamente, se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
         
-        }
-     
-        else{ 
-            
+        } else if(utente.getStato().equals("attesa_risposta")){   // è presente un menu a bottoni in cui l'utente non ha ancora effettuato una scelta
+                
+            invia_messaggio("Prima di procedere effettua una scelta al messaggio precedente.", utente);
+
+        } else{ 
             // in tutti gli altri casi rispediamo quello che ha inserito specificando che il comando non è riconosciuto
             invia_messaggio("Comando non riconosciuto : "+message_text, utente);
            
         }
     }
 
-
     /**
      * Gestisce la chiamata di ritorno, intercettata quando l'utente effettua una scelta premendo un bottone di un menu a scelta.
      * @param update Oggetto contenente l'aggioramento rilevato
      */
-    private void gestisci_chiamata_di_ritorno(Update update) {
+    private void gestisci_chiamata_di_ritorno(Update update) throws IOException{
         
         Utente utente = utenti.get(update.getCallbackQuery().getMessage().getChatId());
         String call_data = update.getCallbackQuery().getData();
@@ -324,13 +304,46 @@ public class MapBot extends TelegramLongPollingBot {
         
         if(utente.getStato().equals("attesa_risposta")){ 
         
-            if (call_data.equals("call_back_carica_da_file")) {
+            if (call_data.equals("call_back_carica_dataset")){
+
+                // se l'utente ha premuto il bottone per caricare un dataset già presente sul db allora spediamo al server uno 0 
+                utente.getConnessione().getObjectOutputStream().writeObject(0);
+
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (carica_dati)");              
+                utente.setStato("carica_dati");
+                modifica_messagio(utente, message_id, "Hai scelto di caricare un dataset già presente sul database.");
+                invia_messaggio("Inserisci il nome della tabella del database da cui ricavare il dataset :", utente);
+
+            } else if (call_data.equals("call_back_crea_nuovo_dataset")){
+
+                // se l'utente ha eseguito il comando per inserire un nuovo dataset sul db allora spediamo al server un 1
+                utente.getConnessione().getObjectOutputStream().writeObject(1);
+
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (inserimento_nome_nuova_tabella)");              
+                utente.setStato("inserimento_nome_nuova_tabella");
+                modifica_messagio(utente, message_id, "Hai scelto di creare un nuovo dataset sul database.");
+                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset, che vuoi aggiungere sul database :", utente);
+            
+            }  else if (call_data.equals("call_back_carica_da_file")) {
+
+                // se l'utente ha premuto il bottone per caricare il dendrogramma da file allora spediamo al server un 3 
+                utente.getConnessione().getObjectOutputStream().writeObject(3);
             
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (caricamento_file)");
                 utente.setStato("caricamento_file");
                 modifica_messagio(utente, message_id, "Hai scelto di caricare il dendrogramma da file");
                 invia_messaggio("Inserisci il nome dell'archivio (compreso di estensione)", utente);
            
+            
+            } else if (call_data.equals("call_back_elimina_dataset")){
+
+                // se l'utente ha premuto il bottone per eliminare un dataset dal db allora spediamo al server un 5 
+                utente.getConnessione().getObjectOutputStream().writeObject(5);
+
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (elimina_dataset)");              
+                utente.setStato("elimina_dataset");
+                modifica_messagio(utente, message_id, "Hai scelto di eliminare un dataset dal database.");
+                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset , che vuoi eliminare dal database :", utente);
             
             } else if (call_data.equals("call_back_apprendi_da_db")) {
 
@@ -356,28 +369,7 @@ public class MapBot extends TelegramLongPollingBot {
 
                 stampa_dendrogramma_distanza_scelta(utente, scelta);
             
-            } else if (call_data.equals("call_back_carica_dataset")){
-
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (carica_dati)");              
-                utente.setStato("carica_dati");
-                modifica_messagio(utente, message_id, "Hai scelto di caricare un dataset già presente sul database.");
-                invia_messaggio("Inserisci il nome della tabella del database da cui ricavare il dataset :", utente);
-
-            } else if (call_data.equals("call_back_crea_nuovo_dataset")){
-
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (aggiungi_nome_tabella)");              
-                utente.setStato("aggiungi_nome_tabella");
-                modifica_messagio(utente, message_id, "Hai scelto di creare un nuovo dataset sul database.");
-                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset, che vuoi aggiungere sul database :", utente);
-            
-            } else if (call_data.equals("call_back_elimina_dataset")){
-
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (elimina_dataset)");              
-                utente.setStato("elimina_dataset");
-                modifica_messagio(utente, message_id, "Hai scelto di eliminare un dataset dal database.");
-                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset , che vuoi eliminare dal database :", utente);
-            
-            }
+            } 
 
         }else{
 
@@ -394,6 +386,51 @@ public class MapBot extends TelegramLongPollingBot {
 
         }
       
+    }
+
+
+    /**
+     * Invia al server il nome della tabella di cui si vuole ricavare il dataset, successivamente viene cambiato lo stato dell'utente in scelta, 
+     * in modo da permettergli di  effettuare la scelta tra caricamento da File o apprendimento da Db, se la ricerca della tabella sul db
+     * non va a buon fine viene inviato all'utente il messaggio di errore generato e gli si viene chiesto di inserire un nuovo nome di tabella.
+     * 
+     * @param utente Utente che sta interagendo con il bot
+     * @param tableName Nome della tabella del db da cui ricavare il dataset
+     */
+    private void loadDataOnServer(Utente utente, String tableName) {
+
+        invia_messaggio("Processo caricamento dataset in corso...", utente);
+
+        try {
+		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
+
+		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+
+		    if(risposta.equals("OK")){	
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : caricato correttamente il dataset");
+                invia_messaggio("Il dataset è stato caricato correttamente.", utente);
+                utente.setStato("attesa_risposta");
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)"); 
+                invia_scelta_caricamento(utente, "Come desideri caricare il Dendrogramma ? ");
+                
+
+            }else{
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -- > rimane ("+utente.getStato()+")");
+                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
+                invia_messaggio(risposta, utente);
+                invia_messaggio("Inserisci nuovamente il nome della tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
+            }
+
+        }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
+            try {
+                utente.scollega();
+            } catch (IOException e1) {
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+            }
+            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+        }   
     }
 
     /**
@@ -424,9 +461,8 @@ public class MapBot extends TelegramLongPollingBot {
                 invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
     
             } else {
-                // se il server risponde con un messaggio di errore, ovvero il file non è stato trovato
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (inserimento_nome_file)"); 
-                utente.setStato("inserimento_nome_file");
+                // se il server risponde con un messaggio di errore
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+ utente.getNomeUtente()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
                 invia_messaggio(risposta, utente);    // invio all'utente l'errore generato
                 invia_messaggio("Per favore inserisci un file valido.", utente);
@@ -477,54 +513,6 @@ public class MapBot extends TelegramLongPollingBot {
         invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
     }
 
-
-
-    /**
-     * Invia al server il nome della tabella di cui si vuole ricavare il dataset, successivamente viene cambiato lo stato dell'utente in scelta, 
-     * in modo da permettergli di  effettuare la scelta tra caricamento da File o apprendimento da Db, se la ricerca della tabella sul db
-     * non va a buon fine viene inviato all'utente il messaggio di errore generato e gli si viene chiesto di inserire un nuovo nome di tabella.
-     * 
-     * @param utente Utente che sta interagendo con il bot
-     * @param tableName Nome della tabella del db da cui ricavare il dataset
-     */
-    private void loadDataOnServer(Utente utente, String tableName) {
-
-        invia_messaggio("Processo caricamento dataset in corso...", utente);
-
-        try {
-
-            
-		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
-
-		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
-
-		    if(risposta.equals("OK")){	
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : caricato correttamente il dataset");
-                invia_messaggio("Il dataset è stato caricato correttamente.", utente);
-                utente.setStato("attesa_risposta");
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)"); 
-                invia_scelta_caricamento(utente, "Come desideri caricare il Dendrogramma ? ");
-                
-
-            }else{
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  (inserimento_nome_tabella)");
-                utente.setStato("inserimento_nome_tabella"); 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(risposta, utente);
-                invia_messaggio("Inserisci nuovamente il nome della tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
-            }
-
-        }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
-            try {
-                utente.scollega();
-            } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
-            }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
-        }   
-    }
 
 
     /**
@@ -814,8 +802,7 @@ public class MapBot extends TelegramLongPollingBot {
                 invia_messaggio("Inserisci il numero di esempi per ogni transizione del dataset", utente);
 
             }else{ 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane (inserimento_nome_nuova_tabella)"); 
-                utente.setStato("inserimento_nome_nuova_tabella");
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+utente.getStato()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
                 invia_messaggio(risposta, utente);
                 invia_messaggio("Inserisci nuovamente il nome della nuova tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
@@ -953,8 +940,7 @@ public class MapBot extends TelegramLongPollingBot {
                 invia_messaggio("Se desideri ricominciare l'esecuzione esegui il comando /restart", utente);
 
             }else if(risposta.equals("NON ESISTE")){
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  (inserimento_elimina_dataset)");
-                utente.setStato("inserimento_elimina_dataset"); 
+                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  rimane ("+utente.getStato()+")");
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
                 invia_messaggio("Il nome della tabella che hai inserito non esiste nel database.", utente);
                 invia_messaggio("Inserisci nuovamente il nome della tabella da eliminare :",utente);  // chiediamo di reinserire un altro nome di tabella
