@@ -1,1 +1,0 @@
-Lo script sql è stato aggiornato per dare i privilegi all'utente di creare ed inserire valori nelle tabelle

@@ -32,7 +32,7 @@ public class HierachicalClusterMiner implements Serializable{
 	 */
 	public HierachicalClusterMiner(int depth, int numberOfExamples) throws InvalidDepthException {
 		if(depth > numberOfExamples) {
-			throw new InvalidDepthException("! ! Errore : La profondità non può essere più grande del numero di esempi nel dataset ("+numberOfExamples+")");
+			throw new InvalidDepthException("Attenzione, la profondità non può essere maggiore del numero di esempi nel dataset ("+numberOfExamples+")");
 		}
 		dendrogram = new Dendrogram(depth);
 	}

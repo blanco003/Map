@@ -91,8 +91,9 @@ public class ServerOneClient extends Thread {
                     //il Client invia la profondita' del Dendrogramma
                     Integer profondita = Integer.parseInt(this.in.readObject().toString());
 
-                    // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException
-                    clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());  
+                   
+                    clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());    
+                    // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException 
 
                     // aggiunto per controllare che clustering venga creato correttamente
                     this.out.writeObject("OK");
@@ -108,6 +109,7 @@ public class ServerOneClient extends Thread {
                     }
 
                     clustering.mine(data, distance);
+                    // se le dimensioni delle transizioni nel dataset sono diverse viene sollevata l'eccezione InvaliSizeException
 
                     System.out.println("Il Dendrogramma è stato appreso con successo");
                     this.out.writeObject("OK");  
@@ -135,10 +137,14 @@ public class ServerOneClient extends Thread {
                 }
 
         } catch (SocketException sock_e) {
+
+            // viene sollevata se l'esecuzione del client viene terminata
         	
             System.out.println("Il client ha terminato la connessione.");
             
-        } catch (NumberFormatException n_e){
+        } catch (NumberFormatException n_e){    
+            
+            // viene sollevata quando il client invia un messaggio il cui tipo non era quello atteso
         	
         	try {
                 System.out.println("Il client ha inviato un messaggio il cui formato non era corretto.");
@@ -147,7 +153,10 @@ public class ServerOneClient extends Thread {
                 System.out.println(io_e.getMessage());
             }
         	
-        } catch (InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
+        } catch ( InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
+
+            // è possibile vengango sollevate le eccezione ClassNotFoundExceptioned ed IoException se durante la comunicazione con il client
+            // si verificano degli errori quando si legge il messaggio spedito dal client o quando si invia un messaggio al client
         
             try {
                 System.out.println(e.getMessage());
