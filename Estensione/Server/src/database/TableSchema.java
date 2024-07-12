@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class TableSchema {
 	
-	/** Oggetto che stabilisce la connessione al db. */
+	/** Oggetto DbAccess per interagire con il Database */
 	private DbAccess db;
 
 	/**
@@ -42,7 +42,7 @@ public class TableSchema {
 		 *
 		 * @return il nome della colonna
 		 */
-		public String getColumnName(){
+		String getColumnName(){
 			return name;
 		}
 
@@ -52,16 +52,21 @@ public class TableSchema {
 		 *
 		 * @return true se il tipo di dato è "number", false altrimenti
 		 */
-		public boolean isNumber(){
+		boolean isNumber(){
 			return type.equals("number");
 		}
+		
+		/**
+		 * Restituisce il nome della colonne come Stringa.
+		 * @return il nome della colonna
+		 */
 		public String toString(){
 			return name+":"+type;
 		}
 	}
 
 	/** ArrayList di Colonne, rappresentanti lo schema della tabella */
-	List<Column> tableSchema=new ArrayList<Column>();      
+	private List<Column> tableSchema=new ArrayList<Column>();      
 	
 
 	/**
@@ -101,26 +106,26 @@ public class TableSchema {
 	        				 );
 	      }
 	      res.close();
-	    }
+	}
 	  
-		/**
-		 * Restituisce il numero di attributi (colonne) presenti nello schema della tabella.
-	 	 *
-	 	 * @return il numero di attributi nella tabella
-	 	 */
-		public int getNumberOfAttributes(){
-			return tableSchema.size();
-		}
+	/**
+	 * Restituisce il numero di attributi (colonne) presenti nello schema della tabella.
+	 *
+	 * @return il numero di attributi nella tabella
+	*/
+	int getNumberOfAttributes(){
+		return tableSchema.size();
+	}
 		
-		/**
-	 	 * Restituisce la colonna corrispondente all'indice specificato.
-	 	 *
-		 * @param index l'indice della colonna da restituire
-		 * @return l'oggetto Column corrispondente all'indice specificato
-		 */
-		public Column getColumn(int index){
-			return tableSchema.get(index);
-		}
+	/**
+	 * Restituisce la colonna corrispondente all'indice specificato.
+	 *
+	 * @param index l'indice della colonna da restituire
+	 * @return l'oggetto Column corrispondente all'indice specificato
+	 */
+	Column getColumn(int index){
+		return tableSchema.get(index);
+	}
 
 		
 	}

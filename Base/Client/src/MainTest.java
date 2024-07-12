@@ -103,10 +103,9 @@ public class MainTest {
 		
 		
 		out.writeObject(1);
-		System.out.println("Introdurre la profondit  del dendrogramma");
+		System.out.println("Introdurre la profondita'  del dendrogramma");
 		int depth=Keyboard.readInt();
-		out.writeObject(depth);
-		
+		out.writeObject(depth); 
 		
 		/* aggiunto per controllare se la profondita e' corretta e il dendrogramma 
 		 * viene creato correttamente senza sollavare l'eccezione InvalidDepthException,
@@ -141,7 +140,7 @@ public class MainTest {
 	 * Punto di avvio del Client
 	 * @param args - parametri della run configuration, bisogna specificare indirizzo e port dove è in ascolto il Server
 	 */
-	public static void main(String[] args) {
+		public static void main(String[] args) {
 		String ip=args[0];
 		int port=new Integer(args[1]).intValue();
 		MainTest main=null;

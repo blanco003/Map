@@ -1,9 +1,8 @@
 package database;
 
 /**
- * La classe DatabaseConnectionException rappresenta un'eccezione personallizata, sollevata quando si verificano dei fallimenti
- * durante la connessione al database
- * 
+ * La classe DatabaseConnectionException rappresenta un'eccezione personalizata, sollevata quando si verificano dei fallimenti
+ * durante la connessione al database.
  */
 public class DatabaseConnectionException extends Exception{
 	/**

@@ -15,43 +15,29 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 
 	/**Insieme ordinato di interi rappresentanti indici dei campioni del dataset */
 	private Set<Integer> clusteredData=new TreeSet<>();
-	
-	//add the index of a sample to the cluster
-
-	/* 
-	void addData(int id){
-		// controllo duplicati
-		for(int i=0; i<clusteredData.length;i++)
-			if(id==clusteredData[i])
-				return;
-		Integer clusteredDataTemp[]=new Integer[clusteredData.length+1];
-		System.arraycopy(clusteredData, 0, clusteredDataTemp, 0, clusteredData.length);
-		clusteredData=clusteredDataTemp;
-		clusteredData[clusteredData.length-1]=id;			
-	}
-
-	*/
-
 
 	/**
-	 * Aggiunge l'indice di un campione al cluster.
+	 * Aggiunge l'indice di un campione di esempi al cluster.
 	 *
-	 * @param id l'indice del campione da aggiungere
+	 * @param id l'indice del campione di esempi da aggiungere al cluster.
 	 */
-	public void addData(int id){
+	void addData(int id){
 		clusteredData.add(id);
 	}
+
 		
 	/**
 	 * Restituisce la dimensione del cluster.
 	 *
 	 * @return il numero di elementi nel cluster
 	 */
-	public int getSize() {
+	public int getSize() {  
+		// public perchè è utile a recuperare la grandezza del Cluster durante il calcolo della distanza average link,
+		// altrimenti potrebbe essere visibile solo al package / private, e per ottenere la grandezza si dovrebbe contare gli elementi durante l'iterazione
 		return clusteredData.size();
 	}
 
-	/*
+	/* non è servito piu
 	public Integer get(int i){
 		Iterator<Integer> it = iterator();
 		Integer res = null;
@@ -72,8 +58,6 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 	*/
 	
-
-	// crea una copia del cluster corrente
 
 	/* da rimpiazzare con interfaccia clonable
 	Cluster createACopy() {
@@ -100,8 +84,8 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	 * @return un clone del cluster corrente
 	 * @throws CloneNotSupportedException se il clone non è supportato
 	 */
-	public Object clone() throws CloneNotSupportedException{
-		return super.clone();
+	public Cluster clone() throws CloneNotSupportedException{
+		return (Cluster) super.clone();
 	}
 
 
@@ -123,25 +107,21 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	 *
 	 * @param c il cluster da unire con il cluster corrente
 	 * @return un nuovo cluster risultante dalla fusione
+	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
-	Cluster mergeCluster(Cluster c){
+	Cluster mergeCluster(Cluster c) throws CloneNotSupportedException{
 
-		Cluster newC = new Cluster();
+		// clona il cluster corrente ed aggiunge ad esso tutti gli elementi del cluster in input
+		Cluster newC = this.clone();
 
-		Iterator<Integer> iterator1 = iterator();
-	
-		while (iterator1.hasNext()) {
-			newC.addData(iterator1.next());
-		}
-	
 		Iterator<Integer> iterator2 = c.iterator();
 	
 		while (iterator2.hasNext()) {
 			newC.addData(iterator2.next());
 		}
-	
+		
 		return newC;
-		}
+	}
 
 
 	/* rimpiazzato con iterator
@@ -157,7 +137,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 
 
 	/**
-	 * Restituisce una rappresentazione sotto forma di stringa del cluster.
+	 * Restituisce una rappresentazione sotto forma di stringa del cluster usando solo gli indici.
 	 *
 	 * @return una stringa che rappresenta gli elementi del cluster
 	 */

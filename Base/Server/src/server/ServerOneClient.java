@@ -1,13 +1,12 @@
 package server;
 
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import clustering.HierachicalClusterMiner;
+import clustering.HierarchicalClusterMiner;
 import clustering.InvalidDepthException;
 import data.InvalidSizeException;
 import data.Data;
@@ -18,23 +17,27 @@ import distance.ClusterDistance;
 import distance.SingleLinkDistance;
 
 /**
- * Classe per far comunicare il Server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client
+ * Classe per far comunicare il Server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client.
  */
 public class ServerOneClient extends Thread {
 
-    private Socket socket; /* Socket tramite la quale avviene la comunicazione con il Client */
+    /** Socket tramite la quale avviene la comunicazione con il Client */
+    private Socket socket; 
+
+    /** Stream di input, con il quale leggere i messaggi spediti dal Client */
     private ObjectInputStream in;
+
+    /** Stream di output, con il quale spedire messaggi al Client */
     private ObjectOutputStream out;
     
 
     /**
-     * Costruttore, inizializza gli attributi socket, in e out ed infine avvia il thread per gestire la richiesta del Client
-     * 
+     * Costruttore, inizializza gli attributi socket, in e out ed infine avvia il thread per gestire la richiesta del Client.
      * 
      * @param s Socket per collegarsi al Client e poter comunicare con esso 
      * @throws IOException Viene generata in caso di errore durante la connessione con il Client
      */
-    public ServerOneClient(Socket s) throws IOException {
+    ServerOneClient(Socket s) throws IOException {
         this.socket = s;
         this.in = new ObjectInputStream(s.getInputStream());
         this.out = new ObjectOutputStream(s.getOutputStream());
@@ -43,11 +46,11 @@ public class ServerOneClient extends Thread {
 
     /**
      * Gestisce le richieste di un singolo Client su un thread separato.
-     * 
      */
     public void run(){
 
         System.out.println("\nConnessione accettata");
+        String eccezione_rilevata = "";
 
         try{  
                 // this.in.readObject() legge il messaggio spedito dal Client
@@ -55,7 +58,7 @@ public class ServerOneClient extends Thread {
                 // System.out.println() stampa semplicemente il messaggio a video sul Server
         
                 Data data = null; 
-                HierachicalClusterMiner clustering = null; 
+                HierarchicalClusterMiner clustering = null; 
                 
                 Integer choice;
                 boolean datasetTrovato =false;
@@ -92,7 +95,7 @@ public class ServerOneClient extends Thread {
                     Integer profondita = Integer.parseInt(this.in.readObject().toString());
 
                    
-                    clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());    
+                    clustering = new HierarchicalClusterMiner(profondita,data.getNumberOfExamples());    
                     // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException 
 
                     // aggiunto per controllare che clustering venga creato correttamente
@@ -129,55 +132,53 @@ public class ServerOneClient extends Thread {
                     // successivamente il Client invia il nome del file (compreso di estensione) in cui è presente il Dendrogramma da caricare
                     String fileName = this.in.readObject().toString();
                    
-                    clustering = HierachicalClusterMiner.loadHierachicalClusterMiner(fileName);
+                    clustering = HierarchicalClusterMiner.loadHierachicalClusterMiner(fileName);
+
+
+                    // controlliamo se la profondita del dendrogramma cariacato dal file è maggiore del numero di esempi del dataset
+                    if(clustering.getDendrogramDepth() > data.getNumberOfExamples()){
+                    	throw new InvalidDepthException("! ! Errore : La profondità del dendrogramma salvato nel file scelto ("+clustering.getDendrogramDepth()+") è maggiore del numero di esempi nel dataset ("+data.getNumberOfExamples()+")");
+                    }
+
                     this.out.writeObject("OK");
                     this.out.writeObject(clustering.toString(data));
                     System.out.println("Il Dendrogramma è stato caricato con successo");
                    
                 }
 
-        } catch (SocketException sock_e) {
-
-            // viene sollevata se l'esecuzione del client viene terminata
-        	
-            System.out.println("Il client ha terminato la connessione.");
-            
-        } catch (NumberFormatException n_e){    
-            
-            // viene sollevata quando il client invia un messaggio il cui tipo non era quello atteso
-        	
-        	try {
-                System.out.println("Il client ha inviato un messaggio il cui formato non era corretto.");
-                this.out.writeObject("Il formato del messaggio non è corretto, era atteso un formato numerico ma è stata ricevuta una stringa");
-            } catch (IOException io_e) {
-                System.out.println(io_e.getMessage());
-            }
-        	
-        } catch ( InvalidDepthException | InvalidSizeException | ClassNotFoundException | IOException e) {
-
-            // è possibile vengango sollevate le eccezione ClassNotFoundExceptioned ed IoException se durante la comunicazione con il client
-            // si verificano degli errori quando si legge il messaggio spedito dal client o quando si invia un messaggio al client
-        
-            try {
-                System.out.println(e.getMessage());
-                this.out.writeObject(e.getMessage() + "\nChiusura connessione al Server");
-            } catch (IOException io_e) {
-                System.out.println(io_e.getMessage());
-            }
+        }catch(SocketException sock_e){
+            eccezione_rilevata = "Il client ha terminato la connessione";
+        }catch(CloneNotSupportedException c_e){
+            eccezione_rilevata = "Errore : si sono verificati degli errori durante la clonazione di un cluster";
+        }catch(NumberFormatException n_e){
+            eccezione_rilevata = "Errore : hai inviato un messaggio il cui formato non era quello previsto";
+        }catch(InvalidSizeException|InvalidDepthException|IOException|ClassNotFoundException e){
+            eccezione_rilevata = e.getMessage();  
         }
 
         // sia nel caso in cui la comunicazione sia terminata eccezionalemente, sia se è stata eseguita correttamente, chiudiamo la connessione con il Client
         finally{
 
+            // se è stata rilevata un eccezione la stampiamo sul server e la inviamo al client
+            if(!eccezione_rilevata.equals("")){   
+                try {
+                    System.out.println("Si sono verificati degli errori durante la comunicazione con il client : " +eccezione_rilevata);  // stampiamo a video sul server l'eccezione rilevata
+                    this.out.writeObject(eccezione_rilevata + "\nChiusura connessione al Server");  // inviamo un messaggio al client dell'eccezione rilevata al client
+                } catch (IOException io_e) {  // errori durante l'invio del messagio al client
+                    System.out.println("!! Errore durante l'invio del messaggio di eccezione al client");
+                }
+            }
+                
+            // infine chiudiamo la connessione con il client
             try{
+                socket.close();    // chiudiamo solo la socket, e non la serversocket
                 System.out.println("Chiusura connessione Client");
-                socket.close();    // chiudo solo la socket, e non la serversocket
             }catch(IOException e){
-                System.err.println("!!Errore durante la chiusura della connessione");
+                System.err.println("!!Errore durante la chiusura della connessione con il client");
             }
         }
 
-        
+    
     }
 
 }

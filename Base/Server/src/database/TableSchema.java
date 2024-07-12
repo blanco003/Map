@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class TableSchema {
 	
+	/** Oggetto DbAccess per interagire con il Database */
 	private DbAccess db;
 
 	/**
@@ -41,7 +42,7 @@ public class TableSchema {
 		 *
 		 * @return il nome della colonna
 		 */
-		public String getColumnName(){
+		String getColumnName(){
 			return name;
 		}
 
@@ -51,16 +52,22 @@ public class TableSchema {
 		 *
 		 * @return true se il tipo di dato è "number", false altrimenti
 		 */
-		public boolean isNumber(){
+		boolean isNumber(){
 			return type.equals("number");
 		}
+
+		/**
+		 * Verifica se il tipo di dato della colonna è numerico.
+		 *
+		 * @return true se il tipo di dato è "number", false altrimenti
+		 */
 		public String toString(){
 			return name+":"+type;
 		}
 	}
 
-
-	List<Column> tableSchema=new ArrayList<Column>();      /* ArrayList di Colonne, rappresentanti lo schema della tabella */
+	/** ArrayList di Colonne, rappresentanti lo schema della tabella */
+	private List<Column> tableSchema=new ArrayList<Column>();      
 	
 
 	/**
@@ -107,7 +114,7 @@ public class TableSchema {
 	 	 *
 	 	 * @return il numero di attributi nella tabella
 	 	 */
-		public int getNumberOfAttributes(){
+		int getNumberOfAttributes(){
 			return tableSchema.size();
 		}
 		
@@ -117,7 +124,7 @@ public class TableSchema {
 		 * @param index l'indice della colonna da restituire
 		 * @return l'oggetto Column corrispondente all'indice specificato
 		 */
-		public Column getColumn(int index){
+		Column getColumn(int index){
 			return tableSchema.get(index);
 		}
 

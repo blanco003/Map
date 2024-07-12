@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Classe che rappresenta il Server multithread
+ * Classe che rappresenta un Server multithread, ovvero un server che gestisce richieste da parte di più client contemporaneamente.
  */
 public class MultiServer {
 

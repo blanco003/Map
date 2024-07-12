@@ -7,18 +7,19 @@ import data.Data;
  * La classe Dendrogram rappresenta un dendrogramma, una struttura ad albero utilizzata per visualizzare l'arrangiamento dei cluster creati durante il clustering gerarchico.
  * Questa classe permette di impostare e ottenere i livelli del dendrogramma, ottenere la profondità del dendrogramma e creare una rappresentazione sotto forma di stringa del dendrogramma.
  */
-class Dendrogram implements Serializable{
+public class Dendrogram implements Serializable{
 
-    private ClusterSet tree[];  /* Array di ClusterSet */
+	/** Array di ClusterSet */
+    private ClusterSet tree[];  
 
     /**
      * Costruisce un Dendrogram con una profondità specificata.
      *
      * @param depth la profondità del dendrogramma
      */
-    public Dendrogram(int depth) {
-            tree = new ClusterSet[depth]; // crea un vettore di dimensione depth
-        }
+    Dendrogram(int depth) {
+            tree = new ClusterSet[depth];
+    }
 
 
     /**
@@ -27,7 +28,7 @@ class Dendrogram implements Serializable{
      * @param c il ClusterSet da impostare
      * @param level il livello del dendrogramma in cui impostare il ClusterSet
      */    
-    public void setClusterSet(ClusterSet c, int level){
+    void setClusterSet(ClusterSet c, int level){
         tree[level]=c;
     }
 
@@ -37,7 +38,7 @@ class Dendrogram implements Serializable{
      * @param level livello di cui recuperare il ClusterSet
      * @return ClusterSet al livello specificato
      */
-    public ClusterSet getClusterSet(int level){
+    ClusterSet getClusterSet(int level){
         return tree[level];
     }
 
@@ -46,7 +47,7 @@ class Dendrogram implements Serializable{
      *
      * @return la profondità del dendrogramma
      */
-    public int getDepth(){
+    int getDepth(){
         return tree.length;
     }
 

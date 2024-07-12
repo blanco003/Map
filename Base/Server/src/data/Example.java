@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * La classe Example rappresenta una LinkedList di valori reali e fornisce metodi per
- * manipolare e calcolare la distanza tra due liste.
+ * La classe Example modella una lista di valori reali, rapprensentati gli esempi delle transizioni, e fornisce
+ * metodi per manipolare gli esempi e calcolare la distanza tra 2 liste di Esempi.
  */
-
 public class Example implements Iterable<Double>{
 	
+    /** Lista di valori reali rappresentanti gli esempi delle transizioni del dataset*/
     private List<Double> example; 
     
     /**
@@ -21,21 +21,21 @@ public class Example implements Iterable<Double>{
     }
 
     /**
-     * Restituisce un iteratore sui valori della LinkedList.
-     *
-     * @return un iteratore di Double sui valori della LinkeList.
-     */
-    public Iterator<Double> iterator() {
-        return example.iterator();
-    }
-
-    /**
-     * Aggiunge un valore alla LinkedList.
+     * Aggiunge un valore alla Lista di esempi.
      *
      * @param v il valore Double da aggiungere alla LinkedList.
      */
     public void add(Double v) {
         example.add(v);
+    }
+
+    /**
+     * Restituisce un iteratore sui valori della Lista di esempi, che può essere usato per scandirla.
+     *
+     * @return un iteratore di Double sui valori della LinkeList.
+     */
+    public Iterator<Double> iterator() {
+        return example.iterator();
     }
 
     /* rimpiazzato con add
@@ -50,20 +50,17 @@ public class Example implements Iterable<Double>{
     }
     */
 
-
     /**
-     * Restituisce il valore nella LinkedList all'indice specificato.
+     * Restituisce il valore nella Lista di esempi memorizzato all'indice specificato.
      *
      * @param index l'indice del valore da restituire.
      * @return il valore Double all'indice specificato.
      */
-    public Double get(int index) {
+    private Double get(int index) {
         return example.get(index);
     }
 
-
     /* rimpiazzato con iterator
-     
     public double distance(Example newE){
         double distance=0;
         if (example.size() != newE.example.size()) {
@@ -79,14 +76,13 @@ public class Example implements Iterable<Double>{
 
     */
 
-
     /**
-     * Calcola la distanza euclidea tra la LinkedList di valori reali ed un'altra fornita.
-     * La distanza è calcolata come la somma dei quadrati delle differenze tra i corrispondenti elementi delle 2 LinkedList.
+     * Calcola la distanza euclidea tra la Lista di valori reali ed un'altra Lista fornita in input.
+     * La distanza è calcolata come la somma dei quadrati delle differenze tra i corrispondenti elementi delle 2 Liste di esempi.
      *
      * @param newE l'altro oggetto Example con cui calcolare la distanza.
-     * @return la distanza euclidea tra le 2 LinkedList di valori reali.
-     * @throws InvalidSizeException se le 2 LinkedList hanno lunghezze diverse.
+     * @return la distanza euclidea tra le 2 Liste di valori reali.
+     * @throws InvalidSizeException se le 2 Liste hanno lunghezze diverse.
      */
     public double distance(Example newE) throws InvalidSizeException{
         double distance=0;
@@ -107,9 +103,7 @@ public class Example implements Iterable<Double>{
 
 
      
-   /*
-    // rimpiazzato con iterator
-
+   /*rimpiazzato con iterator
    public String toString() {  //se do qua in input Example newE, non funziona il tostring della classe Data
 
        String sb= "[";
@@ -125,12 +119,11 @@ public class Example implements Iterable<Double>{
    }
    */
 
-
    /**
     * Restituisce una rappresentazione in formato stringa della LinkedList di valori reali.
     * La LinkedList è rappresentata da partentesi quadre [] con i valori separati da virgola.
     *
-    * @return una stringa che rappresenta la LinkedList di valori reaòo.
+    * @return una stringa che rappresenta la Lista di valori reali.
     */
    public String toString() {
 

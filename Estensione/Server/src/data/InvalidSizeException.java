@@ -1,9 +1,8 @@
 package data;
 
 /**
- * La classe InvalidSizeException rappresenta un'eccezione personalizzata, sollevata quando si prova a calcolare la distanza tra due esempi di
- * diversa dimensione
- * Questa eccezione viene utilizzata per segnalare un errore nella dimensione del dataset durante il clustering gerarchico.
+ * La classe InvalidSizeException rappresenta un'eccezione personalizzata, sollevata quando si prova a calcolare la distanza 
+ * tra due liste di esempi di diversa dimensione.
  */
 public class InvalidSizeException extends Exception {
 

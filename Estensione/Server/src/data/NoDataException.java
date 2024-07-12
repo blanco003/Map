@@ -2,7 +2,7 @@ package data;
 
 /**
  * La classe NoDataException rappresenta un'eccezione personallizata, sollevata quando non viene trovato correttamente 
- * il dataset o quando non sono disponibili dati necessari per una determinata operazione.
+ * il dataset o quando il dataset trovato è vuoto.
  */
 public class NoDataException extends Exception{
     /**

@@ -22,7 +22,7 @@ class ClusterSet implements Serializable{
 	 *
 	 * @param k la dimensione del ClusterSet
 	 */
-	public ClusterSet(int k){
+	ClusterSet(int k){
 		C=new Cluster[k];
 	}
 	
@@ -32,7 +32,7 @@ class ClusterSet implements Serializable{
 	 *
 	 * @param c il cluster da aggiungere
 	 */
-	public void add(Cluster c){
+	void add(Cluster c){
 		for(int j=0;j<lastClusterIndex;j++)
 			if(c==C[j]) // to avoid duplicates
 				return;
@@ -47,7 +47,7 @@ class ClusterSet implements Serializable{
 	 * @param i l'indice del cluster da restituire
 	 * @return il cluster all'indice specificato
 	 */
-	protected Cluster get(int i){
+	private Cluster get(int i){
 		return C[i];
 	}
 	
@@ -94,8 +94,10 @@ class ClusterSet implements Serializable{
 	 * @param distance la distanza utilizzata per determinare i cluster più vicini
 	 * @param data i dati utilizzati per il calcolo della distanza
 	 * @return un nuovo ClusterSet risultante dalla fusione dei cluster più vicini
+	 * @throws InvalidSizeException  se si prova a calcolare la distanza tra due esempi di diversa dimensione
+	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
-	public ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException{
+	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException, CloneNotSupportedException{
 
 		ClusterSet nuovo_clusters_set = new ClusterSet(this.lastClusterIndex - 1); // nuovoClusterSet : conterrà un Cluster in meno rispetto al CLusterSet corrente
 

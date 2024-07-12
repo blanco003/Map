@@ -22,7 +22,7 @@ class ClusterSet implements Serializable{
 	 *
 	 * @param k la dimensione del ClusterSet
 	 */
-	public ClusterSet(int k){
+	ClusterSet(int k){
 		C=new Cluster[k];
 	}
 	
@@ -32,7 +32,7 @@ class ClusterSet implements Serializable{
 	 *
 	 * @param c il cluster da aggiungere
 	 */
-	public void add(Cluster c){
+	void add(Cluster c){
 		for(int j=0;j<lastClusterIndex;j++)
 			if(c==C[j]) // to avoid duplicates
 				return;
@@ -47,55 +47,20 @@ class ClusterSet implements Serializable{
 	 * @param i l'indice del cluster da restituire
 	 * @return il cluster all'indice specificato
 	 */
-	protected Cluster get(int i){
+	private Cluster get(int i){
 		return C[i];
 	}
 	
-	/**
-	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster.
-	 *
-	 * @return una stringa che rappresenta l'insieme di cluster
-	 */
-	public String toString(){
-		String str="";
-		for(int i=0;i<C.length;i++){
-			if (C[i]!=null){
-				str+="cluster"+i+":"+C[i]+"\n";
-		
-			}
-		}
-		return str;
-		
-	}
-
-	
-	/**
-	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando i dati forniti.
-	 *
-	 * @param data i dati da utilizzare per la rappresentazione
-	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
-	 */
-	public String toString(Data data){
-		String str="";
-		for(int i=0;i<C.length;i++){
-			if (C[i]!=null){
-				str+="cluster"+i+":"+C[i].toString(data)+"\n";
-		
-			}
-		}
-		return str;
-	}
-
-
-
 	/**
 	 * Unisce i cluster più vicini basandosi sulla distanza specificata e restituisce un nuovo ClusterSet.
 	 *
 	 * @param distance la distanza utilizzata per determinare i cluster più vicini
 	 * @param data i dati utilizzati per il calcolo della distanza
 	 * @return un nuovo ClusterSet risultante dalla fusione dei cluster più vicini
+	 * @throws InvalidSizeException se la dimensione degli esempi è diversa
+	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
-	public ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException{
+	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException, CloneNotSupportedException{
 
 		ClusterSet nuovo_clusters_set = new ClusterSet(this.lastClusterIndex - 1); // nuovoClusterSet : conterrà un Cluster in meno rispetto al CLusterSet corrente
 
@@ -139,5 +104,41 @@ class ClusterSet implements Serializable{
 
 		return nuovo_clusters_set;
 	}
+
+		/**
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster.
+	 *
+	 * @return una stringa che rappresenta l'insieme di cluster
+	 */
+	public String toString(){
+		String str="";
+		for(int i=0;i<C.length;i++){
+			if (C[i]!=null){
+				str+="cluster"+i+":"+C[i]+"\n";
+		
+			}
+		}
+		return str;
+		
+	}
+
+	
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando i dati forniti.
+	 *
+	 * @param data i dati da utilizzare per la rappresentazione
+	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
+	 */
+	public String toString(Data data){
+		String str="";
+		for(int i=0;i<C.length;i++){
+			if (C[i]!=null){
+				str+="cluster"+i+":"+C[i].toString(data)+"\n";
+		
+			}
+		}
+		return str;
+	}
+
 	
 }

@@ -1,10 +1,7 @@
 package database;
 
 /**
- * La classe EmptySetException rappresenta un'eccezione personalizzata, da sollevare quando un'operazione su un set di dati
- * risulta in un set vuoto.
- * Questa eccezione può essere utilizzata per segnalare che il risultato di una query o di un'operazione
- * su un database non contiene dati.
+ * La classe EmptySetException rappresenta un'eccezione personalizzata, sollevata quando il dataset risulta vuoto.
  */
 public class EmptySetException extends Exception{
 

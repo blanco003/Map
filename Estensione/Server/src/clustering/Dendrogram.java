@@ -16,9 +16,9 @@ class Dendrogram implements Serializable{
      *
      * @param depth la profondità del dendrogramma
      */
-    public Dendrogram(int depth) {
-            tree = new ClusterSet[depth]; // crea un vettore di dimensione depth
-        }
+    Dendrogram(int depth) {
+        tree = new ClusterSet[depth]; 
+    }
 
 
     /**
@@ -27,7 +27,7 @@ class Dendrogram implements Serializable{
      * @param c il ClusterSet da impostare
      * @param level il livello del dendrogramma in cui impostare il ClusterSet
      */    
-    public void setClusterSet(ClusterSet c, int level){
+    void setClusterSet(ClusterSet c, int level){
         tree[level]=c;
     }
 
@@ -37,7 +37,7 @@ class Dendrogram implements Serializable{
      * @param level livello di cui recuperare il ClusterSet
      * @return ClusterSet al livello specificato
      */
-    public ClusterSet getClusterSet(int level){
+    ClusterSet getClusterSet(int level){
         return tree[level];
     }
 
@@ -46,7 +46,7 @@ class Dendrogram implements Serializable{
      *
      * @return la profondità del dendrogramma
      */
-    public int getDepth(){
+    int getDepth(){
         return tree.length;
     }
 

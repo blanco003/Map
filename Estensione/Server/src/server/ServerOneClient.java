@@ -9,7 +9,7 @@ import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import clustering.HierachicalClusterMiner;
+import clustering.HierarchicalClusterMiner;
 import clustering.InvalidDepthException;
 import data.InvalidSizeException;
 import data.Data;
@@ -22,23 +22,26 @@ import distance.ClusterDistance;
 import distance.SingleLinkDistance;
 
 /**
- * Classe per far comunicare il Server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client
+ * Classe per far comunicare il Server con il Client attraverso gli opportuni stream, avviando un thread separato per ogni Client.
  */
 public class ServerOneClient extends Thread {
 
-    private Socket socket; /* Socket tramite la quale avviene la comunicazione con il Client */
+    /** Socket tramite la quale avviene la comunicazione con il Client */
+    private Socket socket; 
+
+    /** Stream di input, con il quale leggere i messaggi spediti dal Client */
     private ObjectInputStream in;
+
+    /** Stream di output, con il quale spedire messaggi al Client */
     private ObjectOutputStream out;
     
 
     /**
-     * Costruttore, inizializza gli attributi socket, in e out ed infine avvia il thread per gestire la richiesta del Client
-     * 
-     * 
+     * Costruttore, inizializza gli attributi socket, in e out ed infine avvia il thread per gestire la richiesta del Client.
      * @param s Socket per collegarsi al Client e poter comunicare con esso 
      * @throws IOException Viene generata in caso di errore durante la connessione con il Client
      */
-    public ServerOneClient(Socket s) throws IOException {
+    ServerOneClient(Socket s) throws IOException {
         this.socket = s;
         this.in = new ObjectInputStream(s.getInputStream());
         this.out = new ObjectOutputStream(s.getOutputStream());
@@ -47,11 +50,11 @@ public class ServerOneClient extends Thread {
 
     /**
      * Gestisce le richieste di un singolo Client su un thread separato.
-     * 
      */
     public void run(){
 
         System.out.println("\nConnessione accettata");
+        String eccezione_rilevata = "";
 
         try{  
                 // this.in.readObject() legge il messaggio spedito dal Client
@@ -59,9 +62,9 @@ public class ServerOneClient extends Thread {
                 // System.out.println() stampa semplicemente il messaggio a video sul Server
         
                 Data data = null; 
-                HierachicalClusterMiner clustering = null; 
+                HierarchicalClusterMiner clustering = null; 
                 
-                // il client inserisce uno (0) per caricare dataset , (1) per inserire un nuovo dataset, (5) per eliminare un dataset
+                // il client inserisce uno (0) per caricare dataset , (1) per inserire un nuovo dataset, (2) per eliminare un dataset
                 Integer choice = Integer.parseInt(this.in.readObject().toString()); // leggendo i messaggi dal client si potrebbe sollevare ClassNotFoundException, la gestiamo alla fine
 
                 if(choice==0){
@@ -79,7 +82,6 @@ public class ServerOneClient extends Thread {
 				            // se ho trovato il dataset spedisco al client OK
                             this.out.writeObject("OK");
                         }catch(NoDataException e){
-
                             this.out.writeObject(e.getMessage());   // spediamo al Client il messagio di errore
                             System.out.println(e.getMessage());  // stampiamo a video sul server il messaggio di errore
                         }	
@@ -99,7 +101,17 @@ public class ServerOneClient extends Thread {
 
                         new_tableName = this.in.readObject().toString();         // il client invia al server il nome della tabella del db da cui recuperare il dataset
 
-                        ArrayList<String> nomi_tabelle_presenti = tb.nomi_tabelle_presenti();   // potrebbe generare DataBaseConnectionException, la gestiamo alla fine
+                        // non possiamo creare in sql una tabella con nome composto da soli numeri, la query di creazione restituirebbe un eccezione
+                        try {
+                            Integer.parseInt(new_tableName);
+                            this.out.writeObject("Non puoi creare una tabella il cui nome è composto da soli numeri.");
+                            System.out.println("!! Errore : Il nome della tabella che il client vuole inserire ("+new_tableName+") è composto da soli numeri");
+                            continue;
+                        } catch (NumberFormatException e) {
+                            // se il cast ad intero fallisce, ovvero il nome di tabella inserito dall'utente non è composto solo da numeri, possiamo procedere normalemente
+                        }
+
+                        ArrayList<String> nomi_tabelle_presenti = tb.getAllTablesName();   // potrebbe generare DataBaseConnectionException, la gestiamo alla fine
                         System.out.println("Nomi tabelle trovati : "+nomi_tabelle_presenti.toString());     // tutti i nomi delle tabelle presenti sul db
                             
                         if(nomi_tabelle_presenti.contains(new_tableName)){
@@ -137,7 +149,7 @@ public class ServerOneClient extends Thread {
                     }
 
                     // creazione della tabella sul database
-                    tb.crea_nuova_tabella(new_tableName, numero_esempi_per_transizione);   // potrebbe sollevare DataBaseConnectionException, la gestiamo alla fine
+                    tb.createNewTable(new_tableName, numero_esempi_per_transizione);   // potrebbe sollevare DataBaseConnectionException, la gestiamo alla fine
                     this.out.writeObject("OK");
 
                     // il client invia le transizioni una ad una nel formato "x1,x2,x3,...,xn", successivamente il server la converte in singoli valori double
@@ -191,7 +203,7 @@ public class ServerOneClient extends Thread {
                             this.out.writeObject("La transizione inserita ha meno esempi del numero specificato precedentemente.");
                             continue; 
                         }else{
-                            tb.inserisci_valori(new_tableName, esempi_singoli_double); // se tutto è andato a buon fine costruiamo la query e la eseguiamo sul db
+                            tb.insertValues(new_tableName, esempi_singoli_double); // se tutto è andato a buon fine costruiamo la query e la eseguiamo sul db
                             this.out.writeObject("OK");
                         }
 
@@ -230,7 +242,7 @@ public class ServerOneClient extends Thread {
                     dbacc.closeConnection(); // chiudiamo la connessione al db, potrebbe sollevare SQLException, la gestiamo alla fine
                                      
 				                       
-                }else if(choice == 5){  // l'utente vuole eliminare un dataset
+                }else if(choice == 2){  // l'utente vuole eliminare un dataset
 
                     System.out.println("Il Client ha scelto di eliminare un dataset");
 
@@ -243,25 +255,22 @@ public class ServerOneClient extends Thread {
                     while (!tabellaEliminata) {
 
                         table = this.in.readObject().toString();     // il client invia il nome della tabella che vuole eliminare dal db
+                        
+                        ArrayList<String> nomi_tabelle_presenti = tb.getAllTablesName();   // potrebbe generare DataBaseConnectionException, la gestiamo alla fine
+                        System.out.println("Nomi tabelle trovati : "+nomi_tabelle_presenti.toString());     // tutti i nomi delle tabelle presenti sul db
 
-                        try {
-                            tb.elimina_tabella(table);     // potrebbe sollevare DataBaseConnectionException, la gestiamo alla fine
+                        if(nomi_tabelle_presenti.contains(table)){
+
+                            tb.deleteTable(table);     
                             this.out.writeObject("OK");
                             tabellaEliminata = true;
                             System.out.println("Il client ha eliminato con sucesso la tabella : "+table);
-                            
-                        } catch (SQLException e) {
-                            
-                            // se la tabella non esiste sql restituisce l'errore " ERROR 1051 (42S02): Unknown table 'mapdb.exampletab100' "
 
-                            if(e.getErrorCode()==1051){
-                                this.out.writeObject("NON ESISTE");
-                                System.out.println("Il client ha inserito un nome di tabella che non esiste nel db : "+table);
-                            }else{
-                                this.out.writeObject("Si sono verificati errori durante la connessione al database");
-                                System.out.println("Si sono verificati errori durante la connessione al database");
-                            }
+                        }else{
+                            this.out.writeObject("NON ESISTE");
+                            System.out.println("Il client ha inserito un nome di tabella che non esiste nel db : "+table);
                         }
+                        
                     }
 
                     dbacc.closeConnection();   // chiudiamo la connessione al db, potrebbe sollevare SQLException, la gestiamo alla fine
@@ -271,10 +280,10 @@ public class ServerOneClient extends Thread {
 
                 } 
 
-                // il client inserisce (2) per apprendere il Dendrogramma da db o (3) per caricare il Dendrogramma da File 
+                // il client inserisce (3) per apprendere il Dendrogramma da db o (4) per caricare il Dendrogramma da File 
                 choice = Integer.parseInt(this.in.readObject().toString());
 
-                if(choice == 2){  // apprendere il Dendrogramma da Database
+                if(choice == 3){  // apprendere il Dendrogramma da Database
 
                     System.out.println("Il Client ha scelto di apprendere il Dendrogramma da Database");
 
@@ -291,7 +300,7 @@ public class ServerOneClient extends Thread {
                                 this.out.writeObject("Attenzione, la profondità deve essere maggiore di 0 !");
                             }else{
                             // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException
-                            clustering = new HierachicalClusterMiner(profondita,data.getNumberOfExamples());  
+                            clustering = new HierarchicalClusterMiner(profondita,data.getNumberOfExamples());  
                             profonditaTrovata = true;
                             this.out.writeObject("OK");
                             }
@@ -320,7 +329,7 @@ public class ServerOneClient extends Thread {
                         distance = new AverageLinkDistance();
                     }
 
-                    clustering.mine(data, distance);  // potrebbe sollevare InvalidSizeException, la gestiamo alla fine
+                    clustering.mine(data, distance);  // potrebbe sollevare InvalidSizeException e CloneNotSupported ,le gestiamo alla fine
 
                     System.out.println("Il Dendrogramma è stato appreso con successo");
                     this.out.writeObject("OK");  
@@ -333,7 +342,7 @@ public class ServerOneClient extends Thread {
                     System.out.println("Il Dendrogramma è stato salvato su file con successo");
 
 
-                }else if(choice==3){  // carica del Dendrogramma da File
+                }else if(choice==4){  // carica del Dendrogramma da File
 
                     // il Client invia il nome del file (compreso di estensione) in cui è presente il Dendrogramma da caricare
 
@@ -346,7 +355,13 @@ public class ServerOneClient extends Thread {
 
                         try{
                             fileName = this.in.readObject().toString();
-                            clustering = HierachicalClusterMiner.loadHierachicalClusterMiner(fileName);
+                            clustering = HierarchicalClusterMiner.loadHierachicalClusterMiner(fileName);
+
+                            // controlliamo se la profondita del dendrogramma cariacato dal file è maggiore del numero di esempi del dataset
+                            if(clustering.getDendrogramDepth() > data.getNumberOfExamples()){
+                                throw new InvalidDepthException("! ! Errore : La profondità del dendrogramma salvato nel file scelto ("+clustering.getDendrogramDepth()+") è maggiore del numero di esempi nel dataset ("+data.getNumberOfExamples()+")");
+                            }
+
                             fileTrovato = true;
                             this.out.writeObject("OK");
                             this.out.writeObject(clustering.toString(data));
@@ -357,6 +372,9 @@ public class ServerOneClient extends Thread {
                         }catch(ClassNotFoundException|IOException e){
                             this.out.writeObject("Il file "+fileName+" non contiene un salvataggio di un Dendrogramma.");
                             System.out.println("!! Errore : Il client ha inserito il nome di un file che non contiene salvataggi");
+                        }catch(InvalidDepthException e){
+                            this.out.writeObject(e.getMessage());
+                            System.out.println("!! Errore : Il client ha inserito il nome di un file che contiene un dendrogramma con profondita' maggiore del numero di esempi del dataset");
                         }
                         
 
@@ -365,32 +383,42 @@ public class ServerOneClient extends Thread {
                 }
 
 
-        } catch (SocketException sock_e) {
-        	
-            System.out.println("Il client ha terminato la connessione : "+sock_e.getMessage());
-            
-        } catch (ClassNotFoundException | IOException | NoDataException | SQLException | DatabaseConnectionException | InvalidSizeException e) { 
-            try {
-                System.out.println(e.getMessage());
-                this.out.writeObject(e.getMessage() + "\nChiusura connessione al Server");
-            } catch (IOException io_e) {
-                System.out.println(io_e.getMessage());
-            }
+        }catch(SocketException sock_e){
+            eccezione_rilevata = "Il client ha terminato la connessione";
+        }catch(CloneNotSupportedException c_e){
+            eccezione_rilevata = "Si sono verificati degli errori durante la clonazione di un cluster";
+        }catch(IOException|ClassNotFoundException io_e){
+            eccezione_rilevata = "Si sono verificati degli errori durante la comunicazione";
+        }catch(SQLException sql_e){
+            eccezione_rilevata = "Si sono verificati degli errori durante l'esecuzione di operazioni sul database";
+        }catch(InvalidSizeException|DatabaseConnectionException|NoDataException e){
+            eccezione_rilevata = e.getMessage();   // il messaggio è già stato personalizzato
         }
 
 
         // sia nel caso in cui la comunicazione sia terminata eccezionalemente, sia se è stata eseguita correttamente, chiudiamo la connessione con il Client
         finally{
 
+            // se è stata rilevata un eccezione la stampiamo sul server e la inviamo al client
+            if(!eccezione_rilevata.equals("")){   
+                try {
+                    System.out.println("Si sono verificati degli errori durante la comunicazione con il client : " +eccezione_rilevata);  // stampiamo a video sul server l'eccezione rilevata
+                    this.out.writeObject(eccezione_rilevata + "\nChiusura connessione al Server");  // inviamo un messaggio al client dell'eccezione rilevata al client
+                } catch (IOException io_e) {  // errori durante l'invio del messagio al client
+                    System.out.println("!! Errore durante l'invio del messaggio di eccezione al client");
+                }
+            }
+                
+            // infine chiudiamo la connessione con il client
             try{
+                socket.close();    // chiudiamo solo la socket, e non la serversocket
                 System.out.println("Chiusura connessione Client");
-                socket.close();    // chiudo solo la socket, e non la serversocket, dunque viene chiusa solo la connession al Client ma il server rimane in ascolto
             }catch(IOException e){
-                System.err.println("!!Errore durante la chiusura della connessione con il Client");
+                System.err.println("!!Errore durante la chiusura della connessione con il client");
             }
         }
 
-        
+       
     }
 
 }

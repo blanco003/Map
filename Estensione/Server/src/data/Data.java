@@ -12,21 +12,21 @@ import database.TableData;
 import database.TableSchema;
 
 /**
- * La classe Data rappresenta un insieme di esempi caricati da una tabella di un database.
- * Fornisce metodi per ottenere informazioni sugli esempi e calcolare le distanze tra essi.
+ * La classe Data modella una lista di Example, rapprensentanti le transizioni del dataset, ottenuti a partire da una tabella del database.
+ * Fornisce metodi per manipolare la lista di Example e calcolare distanze tra 2 liste di Example.
  */
 public class Data{
 
 	/** ArrayList di Example*/
 	private List<Example> data=new ArrayList<>();  
+
 	/** Numero di Example contentuti nel Dataset */
-	int numberOfExamples;  
+	private int numberOfExamples;  
 
 	// Example data []; // rappresenta il dataset, rimpiazzato con contenitore ArrayList
 
 	/**
-	 * Costruttore che inizializza un nuovo oggetto Data leggendo gli esempi da una tabella del database.
-	 *
+	 * Costruttore che inizializza un nuovo oggetto Data ricavando le transizioni di esempi da una tabella del database.
 	 * @param tableName il nome della tabella da cui leggere gli esempi.
 	 * @throws NoDataException se la tabella non viene trovata o è vuota.
 	 * @throws DatabaseConnectionException se si verifica un problema di connessione al database.
@@ -39,29 +39,27 @@ public class Data{
 		// creazione dello schema della tabella
 		TableSchema schema = null;
 		try{
-			schema =new TableSchema(dbacc,tableName);  // potrebbe generare DataBaseConnectionException e propogarla
+			schema = new TableSchema(dbacc,tableName);  // potrebbe generare DataBaseConnectionException se fallisce l'accesso al db.
 		}catch(SQLException e) {
-            throw new NoDataException("! ! Errore : impossibile trovare la tabella, riprovare");
+            System.err.println(e.getMessage());
         }
 		
 		TableData dati = new TableData(dbacc);
 		
 		try {
-			// lettura risultato della query di selezione sulla tabella ed inizilizzazione ArrayList di Example
-			this.data=dati.getDistinctTransazioni(tableName);     // potrebbe generare DataBaseConnectionException e propogarla 
+			this.data=dati.getDistinctTransazioni(tableName);     // potrebbe generare DataBaseConnectionException se fallisce l'accesso al db.
+		} catch(SQLException e){
+			System.err.println(e.getMessage());
 		} catch (EmptySetException e) {
-			throw new NoDataException("! ! Errore : la tabella è vuota, riprovare");       
-		}catch(SQLException e){
-			throw new NoDataException("! ! Errore : impossibile trovare la tabella, riprovare");
+			throw new NoDataException(e.getMessage());   // potrebbe non esistere o non contenere esempi    
 		}
-		/*
-		catch(MissingNumberException e){
+		//
+		//catch(MissingNumberException e){
 			// non si verificherà mai poichè viene controllato se l'attributo non è numerico e viene inserito un valore o di default o la media dei valori già inseriti
-			System.out.println("\n! ! Errore : la tabella contiene attributi non numerici, riprovare");
-		}
-		*/
+		//	System.out.println("\n! ! Errore : la tabella contiene attributi non numerici, riprovare");
+		//}
 
-		this.numberOfExamples=data.size();    // inizializza il numero di esempi con il numero di esempi trovati
+		this.numberOfExamples=data.size();    // inizializziamo il numero di esempi con il numero di esempi trovati
 
 		try {
 			dbacc.closeConnection();     // chiudiamo la connessione al db
@@ -69,6 +67,7 @@ public class Data{
 			System.err.println(e.getMessage());
 		}
 	}
+	
 	
 	//rimosso dopo il database 
 		/* 
@@ -118,11 +117,11 @@ public class Data{
 	 * @return il numero di esempi.
 	 */
 	public int getNumberOfExamples(){
-		return data.size();
+		return this.numberOfExamples;
 	}
 
 	/**
-	 * Restituisce l'esempio all'indice specificato.
+	 * Restituisce l'esempio memorizzato nell'indice specificato.
 	 *
 	 * @param exampleIndex l'indice dell'esempio da restituire.
 	 * @return l'esempio all'indice specificato.
@@ -131,12 +130,11 @@ public class Data{
 		return this.data.get(exampleIndex);
 	}
 
-
 	
 	/**
 	 * Calcola la matrice delle distanze tra tutti gli esempi.
 	 *
-	 * @return una matrice delle distanze.
+	 * @return matrice delle distanze.
 	 * @throws InvalidSizeException se si prova a calcolare la distanza tra due esempi di diversa dimensione.
 	 */
 	public double[][] distance() throws InvalidSizeException{
@@ -157,9 +155,9 @@ public class Data{
 	}
 
 	/**
-	 * Restituisce una rappresentazione in formato stringa dell'insieme di esempi.
+	 * Restituisce una rappresentazione in formato stringa della lista di esempi.
 	 *
-	 * @return una stringa che rappresenta l'insieme di esempi.
+	 * @return una stringa che rappresenta la lista di esempi.
 	 */
 	public String toString() {
 		String sb="";
