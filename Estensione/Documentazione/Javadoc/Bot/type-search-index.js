@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"telegram.bot","l":"Connessione"},{"p":"telegram","l":"MainTest"},{"p":"telegram.bot","l":"MapBot"},{"p":"telegram.bot","l":"Utente"}];updateSearchResults();
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"telegram.bot","l":"Connessione"},{"p":"<Unnamed>","l":"MainTest"},{"p":"telegram.bot","l":"MapBot"},{"p":"telegram.bot","l":"Utente"}];updateSearchResults();

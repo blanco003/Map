@@ -359,7 +359,7 @@ public class ServerOneClient extends Thread {
 
                             // controlliamo se la profondita del dendrogramma cariacato dal file è maggiore del numero di esempi del dataset
                             if(clustering.getDendrogramDepth() > data.getNumberOfExamples()){
-                                throw new InvalidDepthException("! ! Errore : La profondità del dendrogramma salvato nel file scelto ("+clustering.getDendrogramDepth()+") è maggiore del numero di esempi nel dataset ("+data.getNumberOfExamples()+")");
+                                throw new InvalidDepthException("Errore : La profondità del dendrogramma salvato nel file scelto ("+clustering.getDendrogramDepth()+") è maggiore del numero di esempi nel dataset ("+data.getNumberOfExamples()+")");
                             }
 
                             fileTrovato = true;

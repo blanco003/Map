@@ -65,7 +65,7 @@ public class TableData {
 		if (tSchema.getNumberOfAttributes() == 0){     
 			// se non ha attributi allora solleviamo un eccezione EmptySetException, poichè la tabella non esiste in quanto
 			// in sql non possono esistere tabelle con meno di 1 colonna
-			throw new EmptySetException("! ! Errore, impossibile trovare la tabella, riprovare");
+			throw new EmptySetException("Errore, impossibile trovare la tabella, riprovare");
 
 		}else{
 			query += " FROM " + table;      // ora query sarà del tipo "SELECT coloumn1, column2, ... FROM <nome tabella in input>"
@@ -113,7 +113,7 @@ public class TableData {
 			statement.close();
 
 			if (empty){   // se non abbiamo trovato nessun Example, ovvero il risultato era vuoto, solliamo l'eccezione EmptySetException
-				throw new EmptySetException("! ! Errore : la tabella è vuota, riprovare");
+				throw new EmptySetException("Errore : la tabella è vuota, riprovare");
 			}
 				
 			return lista_esempi;  

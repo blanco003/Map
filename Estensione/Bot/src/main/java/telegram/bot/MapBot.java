@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
 import static java.lang.Math.toIntExact;
 
 import java.io.IOException;
@@ -33,6 +34,45 @@ public class MapBot extends TelegramLongPollingBot {
     private HashMap<Long, Utente> utenti = new HashMap<>();
 
     /**
+     * Collezione di Emoji, rappresentate attraverso il loro codice unicode, che il bot usa nell'interagire con l'utente.
+     */
+    private enum Emoji{
+
+        CARICAMENTO ("\u231B"),
+        SUCCESSO("\u2705"),
+        ERRORE("\u274C"),
+        CONNESSIONE("\uD83C\uDF10"),
+        RESTART("\uD83D\uDD01"),
+        STOP("\uD83D\uDED1"),
+        CARTELLA("\uD83D\uDCC1"),
+        NUOVO("\u2795"),
+        CESTINO("\uD83D\uDDD1️"),
+        DB("\uD83D\uDCBE"),
+        FILE("\uD83D\uDCC4"),
+        CATENA("\uD83D\uDD17"),
+        MEDIA("\u2696");
+        
+        /** Codice unicode dell'Emoji*/
+        private final String unicode;
+
+        /**
+         * Costruttore.
+         * @param unicode codice unico usato per rappresentare l'Emoji.
+         */
+        Emoji(String unicode){
+            this.unicode = unicode;
+        }
+
+        /**
+         * Restitusce il codice unicode corrispondente all'Emoji.
+         * @return il codice unicode dell'Emoji.
+         */
+        public String getUnicode(){
+            return unicode;
+        }
+    }
+
+    /**
      * Costruttore del bot
      * @param token Token del bot
      * @param Username Nome utente del bot
@@ -53,7 +93,7 @@ public class MapBot extends TelegramLongPollingBot {
     // ereditato da TelegramLongPollingBot
     /**
      * Gestisce l'aggiornamento rilevato, ovvero quando l'utente interagisce con il bot in qualsiasi modo.
-     * @param update Oggetto contenente l'aggiornamento rilevato
+     * @param update Oggetto contenente l'aggiornamento rilevato.
      */
     @Override
     public void onUpdateReceived(Update update) {
@@ -89,15 +129,21 @@ public class MapBot extends TelegramLongPollingBot {
             
             if (message_text.equals("/start")) {        // l'utente ha appena inziato la conversazione
 
+            if(utente.getConnessione()==null){
                 invia_messaggio("Benvenuto su map, per favore collegati al server tramite il comando /connect", utente);
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (default)");
                 utente.setStato("default");
+            
+            }else{
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " Hai già avviato la conversazione e sei già collegato al server, se vuoi riavviare la conversazione e la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+            }
+                
                 
 
             } else if(message_text.equals("/restart")){   // l'utente desidera ristabilire la connessione scartando le scelte eseguite fino ad un determinato momento
 
                 if(utente.getConnessione()==null){
-                    invia_messaggio("Non sei ancora collegato ancora al server, puoi iniziare direttamente connettendoti tramite il comando /connect", utente);
+                    invia_messaggio(Emoji.ERRORE.getUnicode() + " Non sei ancora collegato ancora al server, puoi iniziare direttamente connettendoti tramite il comando /connect", utente);
                     return;
                 }
                 
@@ -105,7 +151,7 @@ public class MapBot extends TelegramLongPollingBot {
                     utente.scollega();
                     utente.collega("127.0.0.1", 8080);
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato e ricollegato correttamente al server");
-                    invia_messaggio("La connessione è stata riavviata con successo.", utente);
+                    invia_messaggio(Emoji.CONNESSIONE.getUnicode() + " La connessione è stata riavviata con successo.", utente);
                     invia_scelta_dataset(utente, "Cosa desideri fare ?");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
                     utente.setStato("attesa_risposta");
@@ -119,21 +165,21 @@ public class MapBot extends TelegramLongPollingBot {
             }else if(message_text.equals("/connect")){      
 
                 if(utente.getConnessione()!=null){
-                    invia_messaggio("Sei già connesso con il server, se vuoi riavviare la connessione esegui il comando /restart", utente);
+                    invia_messaggio(Emoji.STOP.getUnicode() + " Sei già connesso con il server, se vuoi riavviare la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
                     return;
                 }
 
                 try{
                     utente.collega("127.0.0.1", 8080);
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , collegato correttamente al server");
-                    invia_messaggio("Connessione con il server andata a buon fine", utente);
+                    invia_messaggio(Emoji.CONNESSIONE.getUnicode() + " Connessione con il server andata a buon fine", utente);
                     invia_scelta_dataset(utente, "Cosa desideri fare ?");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
                     utente.setStato("attesa_risposta");
 
                 }catch(IOException e){
                     System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , Eccezione : "+e.getMessage());
-                    invia_messaggio("La connessione al server non è andata a buon fine, per favore verifica il server sia online e riprova /connect", utente);
+                    invia_messaggio(Emoji.ERRORE.getUnicode() +" La connessione al server non è andata a buon fine, per favore verifica il server sia online e riprova /connect", utente);
                 }
 
                 
@@ -169,7 +215,7 @@ public class MapBot extends TelegramLongPollingBot {
             long chat_id = update.getCallbackQuery().getMessage().getChatId();
             Utente temp_utente = new Utente(chat_id, "", null, "");
             modifica_messagio(temp_utente, message_id, "Non puoi piu considerare questo messaggio !");
-            invia_messaggio("Non puoi rispondere a vecchi messaggi ! per favore inzia connettendoti al server tramite il comando /connect", temp_utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() + " Non puoi rispondere a vecchi messaggi ! per favore inzia connettendoti al server tramite il comando /connect", temp_utente);
             return;
         }
 
@@ -251,7 +297,7 @@ public class MapBot extends TelegramLongPollingBot {
         }else{
             // è stato rilevato un callback, ma l'utente non era nello stato di attessa_risposta ovvero doveva rispondedere ad un menu in quel momento
             modifica_messagio(utente, message_id, "Non puoi piu considerare questo messaggio !");
-            invia_messaggio("Non puoi rispondere a vecchi messaggi !", utente);    
+            invia_messaggio(Emoji.ERRORE.getUnicode() + " Non puoi rispondere a vecchi messaggi !", utente);    
         }
       
     }
@@ -339,14 +385,14 @@ public class MapBot extends TelegramLongPollingBot {
  
 
                 if(risposta.equals("OK DATASET")){  // il dataset è stato caricato correttamente sul db
-                    invia_messaggio("Il dataset è stato creato correttamente sul database ed è stato caricato, puoi procedere con la scelta del tipo di caricamento", utente);
+                    invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il dataset è stato creato correttamente sul database ed è stato caricato, puoi procedere con la scelta del tipo di caricamento", utente);
                     invia_scelta_caricamento(utente, "Esegui una scelta di caricamento");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
                     utente.setStato("attesa_risposta");
                 }else{
                     utente.scollega();
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
-                    invia_messaggio("Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconnesso per favore riconnettiti tramite il comando /connect", utente);
+                    invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconnesso per favore riconnettiti tramite il comando /connect", utente);
                 }
 
                 
@@ -354,7 +400,7 @@ public class MapBot extends TelegramLongPollingBot {
 
                 // se l'utente risponde con un messaggio che non è nè si nè no, il server richiede di inserire una risposta finche l'utente non inserisce si o no
                 String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
-                invia_messaggio(risposta, utente);
+                invia_messaggio(Emoji.ERRORE.getUnicode() + risposta, utente);
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") -->  rimane ("+ utente.getStato()+")");
             }
 
@@ -368,15 +414,16 @@ public class MapBot extends TelegramLongPollingBot {
 
         } else if(utente.getStato().equals("file_caricato") || utente.getStato().equals("file_salvato")){
 
-            invia_messaggio("Hai già caricato il dataset e stampato il Dendrogramma correttamente, se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
+            invia_messaggio("Hai già caricato il dataset e stampato il Dendrogramma correttamente, se vuoi ricominciare l'esecuzione esegui il comando /restart " + Emoji.RESTART.getUnicode(), utente);
         
         } else if(utente.getStato().equals("attesa_risposta")){   // è presente un menu a bottoni in cui l'utente non ha ancora effettuato una scelta
-                
-            invia_messaggio("Prima di procedere effettua una scelta al messaggio precedente.", utente);
+            
+          
+            invia_messaggio(Emoji.STOP.getUnicode() + " Prima di procedere effettua una scelta al messaggio precedente.", utente);
 
         } else{ 
             // in tutti gli altri casi rispediamo quello che ha inserito specificando che il comando non è riconosciuto
-            invia_messaggio("Comando non riconosciuto : "+message_text, utente);
+            invia_messaggio(Emoji.STOP.getUnicode() + " Comando non riconosciuto : "+message_text, utente);
            
         }
     }
@@ -391,7 +438,7 @@ public class MapBot extends TelegramLongPollingBot {
      */
     private void loadDataOnServer(Utente utente, String tableName) {
 
-        invia_messaggio("Processo caricamento dataset in corso...", utente);
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo caricamento dataset in corso...", utente);
 
         try {
 		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
@@ -400,7 +447,7 @@ public class MapBot extends TelegramLongPollingBot {
 
 		    if(risposta.equals("OK")){	
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : caricato correttamente il dataset");
-                invia_messaggio("Il dataset è stato caricato correttamente.", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il dataset è stato caricato correttamente.", utente);
                 utente.setStato("attesa_risposta");
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)"); 
                 invia_scelta_caricamento(utente, "Come desideri caricare il Dendrogramma ? ");
@@ -409,7 +456,7 @@ public class MapBot extends TelegramLongPollingBot {
             }else{
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -- > rimane ("+utente.getStato()+")");
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(risposta, utente);
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente);
                 invia_messaggio("Inserisci nuovamente il nome della tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
             }
 
@@ -420,8 +467,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -434,8 +481,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param fileName Nome del file su cui è presente il clustering che si vuole caricare
      */
     private void loadDedrogramFromFileOnServer(Utente utente, String fileName) {
-
-        invia_messaggio("Processo di caricamento file in corso...", utente);
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo di caricamento file in corso...", utente);
 
         try {
               
@@ -443,21 +489,20 @@ public class MapBot extends TelegramLongPollingBot {
             String risposta = (String) utente.getConnessione().getObjectInputStream().readObject();
 
             if (risposta.equals("OK")) {    
-
-                invia_messaggio("Dendrogramma caricato con successo : ", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Dendrogramma caricato con successo : ", utente);
     
                 String dendrogramma = (String) utente.getConnessione().getObjectInputStream().readObject();
                 invia_messaggio(dendrogramma, utente);  // inviamo all'utente un messaggio contenete il Dendrogramma caricato dal file
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (file_caricato)"); 
                 utente.setStato("file_caricato");
 
-                invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
+                invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
     
             } else {
                 // se il server risponde con un messaggio di errore
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+ utente.getNomeUtente()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
-                invia_messaggio(risposta, utente);    // invio all'utente l'errore generato
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " " +risposta, utente);    // invio all'utente l'errore generato
                 invia_messaggio("Per favore inserisci un file valido.", utente);
             }
             
@@ -468,8 +513,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
     }
     
@@ -481,8 +526,8 @@ public class MapBot extends TelegramLongPollingBot {
      * @param message_text Nome del file su cui effettuare il salvataggio
      */
     private void saveFile(Utente utente, String message_text) {
-
-        invia_messaggio("Processo di salvataggio file in corso...", utente);
+        
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo di salvataggio file in corso...", utente);
 
         try {
             utente.getConnessione().getObjectOutputStream().writeObject(message_text);  // inviamo al server il nome del file su cui l'utente vuole effettuare il salvataggio
@@ -495,15 +540,16 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
 
         }
 
-        invia_messaggio("Il Dendrogramma è stato salvato con successo nel file : "+message_text, utente);
+        
+        invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Il Dendrogramma è stato salvato con successo nel file : "+message_text, utente);
         System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (file_salvato)");  
         utente.setStato("file_salvato");
-        invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart", utente);
+        invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
     }
 
     /**
@@ -552,7 +598,7 @@ public class MapBot extends TelegramLongPollingBot {
 
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  rimane ("+utente.getStato()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , risposta dal server : "+risposta); // stampiamo sul terminale il messaggio di errore
-                invia_messaggio(risposta, utente); // inviamo all'utente il messaggio di errore
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " " +risposta, utente); // inviamo all'utente il messaggio di errore
                 invia_messaggio("Per favore inserisci una profondita valida.", utente);
             }
 
@@ -564,8 +610,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
         } 
 
     } 
@@ -576,8 +622,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param scelta Scelta della distanza tra (1) SingleLinkDistance e (2) AverageLinkDistance
      */
     private void stampa_dendrogramma_distanza_scelta(Utente utente,int scelta){
-
-        invia_messaggio("Processo di recupero e stampa del Dendrogramma....", utente);
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo di recupero e stampa del Dendrogramma....", utente);
 
         try{
 
@@ -586,21 +631,20 @@ public class MapBot extends TelegramLongPollingBot {
 		    String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
 
 		    if (risposta.equals("OK")) {    
-
-                invia_messaggio("Dendrogramma caricato con successo : ", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Dendrogramma caricato con successo : ", utente);
                 String dendrogramma = (String) utente.getConnessione().getObjectInputStream().readObject();  // inviamo all'utente un messagio contente il clustering
                 invia_messaggio(dendrogramma, utente);
     
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (salvataggio)");  
                 utente.setStato("salvataggio");
 
-                invia_messaggio("Inserisci il nome dell'archivio su cui salvare il Dendrogramma (compreso di estensione)",utente);
+                invia_messaggio(Emoji.DB.getUnicode() + " Inserisci il nome dell'archivio su cui salvare il Dendrogramma (compreso di estensione)",utente);
     
             } else {
 
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane  ("+utente.getStato()+")");
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
-                invia_messaggio(risposta, utente);    // invio all'utente l'errore generato
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente);    // invio all'utente l'errore generato
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
@@ -610,8 +654,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -632,7 +676,7 @@ public class MapBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
+    
     /** Invia all'utente un messaggio ed un menu composto da 3 bottoni, uno per scegliere di caricare un dataset già presente sul databse, uno per inserire un nuovo dataset nel database,
      * ed uno per eliminare un dataset esistente.
      * 
@@ -646,41 +690,43 @@ public class MapBot extends TelegramLongPollingBot {
         
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-    
+        
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         InlineKeyboardButton in_btn1 = new InlineKeyboardButton();
-        in_btn1.setText("Carica dataset esistente");
+        in_btn1.setText("Carica dataset esistente " + Emoji.CARTELLA.getUnicode());  
         in_btn1.setCallbackData("call_back_carica_dataset");
-    
+        
         InlineKeyboardButton in_btn2 = new InlineKeyboardButton();
-        in_btn2.setText("Crea nuovo dataset");
+  
+        in_btn2.setText("Crea nuovo dataset "+ Emoji.NUOVO.getUnicode());  
         in_btn2.setCallbackData("call_back_crea_nuovo_dataset");
-    
+        
         InlineKeyboardButton in_btn3 = new InlineKeyboardButton();
-        in_btn3.setText("Elimina dataset");
+        in_btn3.setText("Elimina dataset "+ Emoji.CESTINO.getUnicode());  
         in_btn3.setCallbackData("call_back_elimina_dataset");
-    
+        
         rowInline.add(in_btn1);
         rowsInline.add(new ArrayList<>(rowInline));
-    
+        
         rowInline.clear();
         rowInline.add(in_btn2);
         rowsInline.add(new ArrayList<>(rowInline));  
-    
+        
         rowInline.clear();
         rowInline.add(in_btn3);
         rowsInline.add(new ArrayList<>(rowInline));
-    
+        
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
-    
+        
         try {
             execute(message);
-        }catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getNomeUtente()+") : " + e.getMessage());
+        } catch (TelegramApiException e) {
+            System.out.println("Errore durante l'invio di un messaggio all'utente (" + utente.getNomeUtente() + ") : " + e.getMessage());
             e.printStackTrace();
         }
     }
+    
 
     /** Invia all'utente un messaggio ed un menu composto da 2 bottoni, uno per scegliere di caricare il Dendrogramma da file e l'altro per apprendere il Dendrogramma
      * da database.
@@ -698,12 +744,12 @@ public class MapBot extends TelegramLongPollingBot {
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         InlineKeyboardButton in_btn1 = new InlineKeyboardButton();
-        in_btn1.setText("Carica da file");
+        in_btn1.setText("Carica da file "+ Emoji.FILE.getUnicode());
         in_btn1.setCallbackData("call_back_carica_da_file");
         
 
         InlineKeyboardButton in_btn2 = new InlineKeyboardButton();
-        in_btn2.setText("Apprendi da db");
+        in_btn2.setText("Apprendi da db "+ Emoji.DB.getUnicode());
         in_btn2.setCallbackData("call_back_apprendi_da_db");
 
         rowInline.add(in_btn1);
@@ -740,11 +786,11 @@ public class MapBot extends TelegramLongPollingBot {
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         InlineKeyboardButton in_btn1 = new InlineKeyboardButton();
-        in_btn1.setText("Single Link Distance");
+        in_btn1.setText("Single Link Distance " + Emoji.CATENA.getUnicode());
         in_btn1.setCallbackData("call_back_single_link");
 
         InlineKeyboardButton in_btn2 = new InlineKeyboardButton();
-        in_btn2.setText("Average Link Distance");
+        in_btn2.setText("Average Link Distance " + Emoji.MEDIA.getUnicode());
         in_btn2.setCallbackData("call_back_average_link");
 
         rowInline.add(in_btn1);
@@ -772,8 +818,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param tableName Nome della tabella che l'utente desidera inserire nel databse.
      */
     private void controlla_univocita_nome_tabella(Utente utente, String tableName) {
-
-        invia_messaggio("Processo di inserimento nuovo dataset in corso...", utente);
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo di inserimento nuovo dataset in corso...", utente);
     
         try {
 
@@ -785,13 +830,13 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : nuovo nome trovato con successo");
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (inserimento_numero_esempi)"); 
                 utente.setStato("inserimento_numero_esempi");
-                invia_messaggio("Il nome del dataset inserito è disponibile, puoi procedere", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il nome del dataset inserito è disponibile, puoi procedere", utente);
                 invia_messaggio("Inserisci il numero di esempi per ogni transizione del dataset", utente);
 
             }else{ 
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+utente.getStato()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(risposta, utente);
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " " + risposta, utente);
                 invia_messaggio("Inserisci nuovamente il nome della nuova tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
             }
 
@@ -802,8 +847,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -828,7 +873,7 @@ public class MapBot extends TelegramLongPollingBot {
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : creata correttamente tabella sul db");
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (inserimento_dataset)"); 
                     utente.setStato("inserimento_dataset");
-                    invia_messaggio("La tabella è stata creata correttamente sul database.", utente);
+                    invia_messaggio(Emoji.SUCCESSO.getUnicode() + " La tabella è stata creata correttamente sul database.", utente);
 
                     // costruiamo il formato x1,x2,..xn considerando il numero corretto di esempi scelti dall'utente
                     String formato = "";
@@ -842,7 +887,7 @@ public class MapBot extends TelegramLongPollingBot {
 
                     invia_messaggio("Inizia ad inserire la prima transizione da inserire nel dataset, ricorda che ogni transizione deve essere nel formato : "+formato, utente);
                 }else{
-                    invia_messaggio(risposta_creazione_tabella_db, utente); 
+                    invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta_creazione_tabella_db, utente); 
                     utente.scollega();
                     System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
                     invia_messaggio("Sei stato disconnesso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
@@ -851,7 +896,7 @@ public class MapBot extends TelegramLongPollingBot {
             }else{
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane  ("+utente.getStato()+")"); 
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , risposta dal server : "+risposta); 
-                invia_messaggio(risposta, utente); 
+                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente); 
                 invia_messaggio("Inserisci un nuovo numero di esempi", utente);
             }
 
@@ -862,8 +907,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -879,13 +924,13 @@ public class MapBot extends TelegramLongPollingBot {
             String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
 
             if(risposta.equals("OK")){
-                invia_messaggio("La transizione è stata aggiunta correttamente al dateset", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " La transizione è stata aggiunta correttamente al dateset", utente);
                 invia_messaggio("Vuoi continuare ad inserire altre transizioni ? (Si/No)", utente);
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (continua_inserimento)"); 
                 utente.setStato("continua_inserimento");
             }else{
-                invia_messaggio(risposta, utente);
-                invia_messaggio("per favore inserisci una nuova transizione rispettando il formato specificato", utente);
+                invia_messaggio(Emoji.ERRORE.getUnicode() +" "+risposta, utente);
+                invia_messaggio("Per favore inserisci una nuova transizione rispettando il formato specificato", utente);
                 
             }
 
@@ -897,7 +942,7 @@ public class MapBot extends TelegramLongPollingBot {
             } catch (IOException e1) {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , Eccezione : (" +e1.getMessage());
             }
-            invia_messaggio("Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso per favore ricconnettiti tramite il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso per favore ricconnettiti tramite il comando /connect", utente);
 
         }
     }
@@ -909,9 +954,7 @@ public class MapBot extends TelegramLongPollingBot {
      * 
      */
     private void deleteDataOnServer(Utente utente, String tableName) {
-
-        invia_messaggio("Processo eliminazione dataset in corso...", utente);
-
+        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo eliminazione dataset in corso...", utente);
 
         try{
 
@@ -924,8 +967,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : eliminato correttamente il dataset");
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (default)"); 
                 utente.setStato("default");
-                invia_messaggio("Il dataset è stato eliminato con successo dal database.", utente);
-                invia_messaggio("Se desideri ricominciare l'esecuzione esegui il comando /restart", utente);
+                invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Il dataset è stato eliminato con successo dal database.", utente);
+                invia_messaggio("Se desideri ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
 
             }else if(risposta.equals("NON ESISTE") || risposta.equals("NUMERO")){
 
@@ -933,9 +976,9 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
 
                 if(risposta.equals("NON ESISTE")){
-                    invia_messaggio("Il nome della tabella che hai inserito non esiste nel database.", utente);
+                    invia_messaggio(Emoji.ERRORE.getUnicode() + " Il nome della tabella che hai inserito non esiste nel database.", utente);
                 }else{
-                    invia_messaggio("In sql non può esistere un nome di tabella che sia composto solo da numeri", utente);
+                    invia_messaggio(Emoji.ERRORE.getUnicode() + " In sql non può esistere un nome di tabella che sia composto solo da numeri", utente);
                 }
 
 
@@ -943,7 +986,7 @@ public class MapBot extends TelegramLongPollingBot {
 
             }else{
                 System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(risposta, utente);
+                invia_messaggio(Emoji.ERRORE.getUnicode() +" "+risposta, utente);
                 utente.scollega();
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
                 invia_messaggio("Sei stato disconnesso dal sever, se vuoi continuare prima di tutto riconnettiti tramite il comando /connect", utente);
@@ -956,8 +999,8 @@ public class MapBot extends TelegramLongPollingBot {
                 System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
             System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio("Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect", utente);
+            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
 
             
@@ -992,7 +1035,5 @@ public class MapBot extends TelegramLongPollingBot {
         return this.Token;
     }
 
-
-    
 
 }
