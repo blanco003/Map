@@ -44,8 +44,6 @@ public class Utente {
      * @param nomeUtente Nome utente dell'utente che sta comunicando con il Bot
      * @param conn Oggetto connessione, rappresenta la connsessione dell'utente (client) al server
      * @param statUtente Stato in cui si trova l'utente durante la comunicazione con il bot
-     * @param dataTrovati Indica se l'utente ha gia caricato il dataset interagendo con il server o non ancora
-     * @param connesso Indica se l'utente (client) è connesso con il server
      */
     Utente(long chat_id, String nomeUtente, Connessione conn, String statUtente) {
         this.chat_id = chat_id;

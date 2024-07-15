@@ -99,11 +99,14 @@ public class MapBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (update.hasCallbackQuery()) {
-            String utente = update.getCallbackQuery().getFrom().getUserName();
-            System.out.println(data_corrente()+" - Utente : ("+utente+") - Ricevuta callback query: " + update.getCallbackQuery().getData());
+
+            long chat_id = update.getCallbackQuery().getMessage().getChatId();
+            // se l'utente ha premuto un bottone, allora aveva già interagito con il bot dunque lo recuperiamo direttamente dall'hashmap
+            Utente utente = utenti.get(chat_id); 
+            System.out.println(data_corrente()+" - Utente : ("+utente.getNomeUtente()+") - Ricevuta callback query: " + update.getCallbackQuery().getData());
             
             try {
-                gestisci_chiamata_di_ritorno(update);
+                gestisci_chiamata_di_ritorno(utente,update);
             } catch (IOException e) {
                 System.out.println(data_corrente()+" - Utente : ("+ utente+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
                 e.printStackTrace();
@@ -115,7 +118,7 @@ public class MapBot extends TelegramLongPollingBot {
             long chat_id = update.getMessage().getChatId();
             Utente utente = null;
     
-            // se l'utente ha già comunicato con il bot lo recuperiamo dall'hasmap, altrimenti inzializziamo un nuovo utente e lo inseriamo nell'hashmap
+            // se l'utente ha già comunicato con il bot lo recuperiamo dall'hashmap, altrimenti inzializziamo un nuovo utente e lo inseriamo nell'hashmap
 
             if( utenti.containsKey(chat_id)){
                 utente = utenti.get(chat_id);
@@ -199,26 +202,13 @@ public class MapBot extends TelegramLongPollingBot {
     
     /**
      * Gestisce la chiamata di ritorno, intercettata quando l'utente effettua una scelta premendo un bottone di un menu a scelta.
+     * @param utente Utente che ha interagito con il bot.
      * @param update Oggetto contenente l'aggioramento rilevato.
      */
-    private void gestisci_chiamata_di_ritorno(Update update) throws IOException{
+    private void gestisci_chiamata_di_ritorno(Utente utente, Update update) throws IOException{
         
-        Utente utente = utenti.get(update.getCallbackQuery().getMessage().getChatId());
         String call_data = update.getCallbackQuery().getData();
         long message_id = update.getCallbackQuery().getMessage().getMessageId();
-
-
-        /*  caso in cui l'utente non è ancora connesso al server ma ha semplicemente aperto un vecchio messaggio 
-            in cui è presente una scelta da fare ed ha premuto un bottone 
-        */
-        if(utente==null){
-            long chat_id = update.getCallbackQuery().getMessage().getChatId();
-            Utente temp_utente = new Utente(chat_id, "", null, "");
-            modifica_messagio(temp_utente, message_id, "Non puoi piu considerare questo messaggio !");
-            invia_messaggio(Emoji.ERRORE.getUnicode() + " Non puoi rispondere a vecchi messaggi ! per favore inzia connettendoti al server tramite il comando /connect", temp_utente);
-            return;
-        }
-
 
         System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+")");
         
@@ -292,11 +282,11 @@ public class MapBot extends TelegramLongPollingBot {
 
                 stampa_dendrogramma_distanza_scelta(utente, scelta);
             
-            } 
+            }
 
         }else{
             // è stato rilevato un callback, ma l'utente non era nello stato di attessa_risposta ovvero doveva rispondedere ad un menu in quel momento
-            modifica_messagio(utente, message_id, "Non puoi piu considerare questo messaggio !");
+            modifica_messagio(utente, message_id, Emoji.ERRORE.getUnicode() + " Non puoi piu considerare questo messaggio !");
             invia_messaggio(Emoji.ERRORE.getUnicode() + " Non puoi rispondere a vecchi messaggi !", utente);    
         }
       
