@@ -75,6 +75,7 @@ public class HierarchicalClusterMiner implements Serializable{
 	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
 	public void mine(Data data, ClusterDistance distance) throws InvalidSizeException, CloneNotSupportedException{
+
 		// creazione del livello base del dendrogramma (livello 0)
 		ClusterSet baseLevel = new ClusterSet(data.getNumberOfExamples());
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {
@@ -84,15 +85,15 @@ public class HierarchicalClusterMiner implements Serializable{
 		}
 		dendrogram.setClusterSet(baseLevel, 0);
 
-		// Costruzione dei livelli successivi del dendrogramma
+
+		// costruzione dei livelli successivi del dendrogramma
 		for (int level = 1; level < dendrogram.getDepth(); level++) {
 			ClusterSet previousLevel = dendrogram.getClusterSet(level - 1);
 			ClusterSet mergedLevel = previousLevel.mergeClosestClusters(distance, data);
 			dendrogram.setClusterSet(mergedLevel, level);
 		}
-
+		
 	}
-
 	/* Aggiunta per recuperare la profondità del dendrogramma. Utile per gestire il caso in cui la profondita del dendrogrammata caricato a partire
 	   da un file risulta maggiore del numero di esempi del dataset.
 	*/

@@ -59,15 +59,6 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	*/
 	
 
-	/* da rimpiazzare con interfaccia clonable
-	Cluster createACopy() {
-			Cluster copyC=new Cluster();
-			for (int i=0;i<getSize();i++)
-				copyC.addData(clusteredData[i]);
-			return copyC;
-	}
-	*/
-
 	/**
 	 * Restituisce un iteratore per gli elementi del cluster.
 	 *
@@ -78,16 +69,28 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 
 
+	/* da rimpiazzare con interfaccia clonable
+	Cluster createACopy() {
+			Cluster copyC=new Cluster();
+			for (int i=0;i<getSize();i++)
+				copyC.addData(clusteredData[i]);
+			return copyC;
+	}
+	*/
+
 	/**
 	 * Crea una copia del cluster corrente.
 	 *
 	 * @return un clone del cluster corrente
 	 * @throws CloneNotSupportedException se il clone non è supportato
-	 */
-	public Cluster clone() throws CloneNotSupportedException{
-		return (Cluster) super.clone();
-	}
-
+	*/
+	public Cluster clone() throws CloneNotSupportedException {
+        
+        Cluster cluster_copia = (Cluster) super.clone();
+        cluster_copia.clusteredData = new TreeSet<>(this.clusteredData);
+        return cluster_copia;
+        
+    }
 
 	/* rimpiazzato con iterator 
 	Cluster mergeCluster (Cluster c)
@@ -108,21 +111,20 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	 * @param c il cluster da unire con il cluster corrente
 	 * @return un nuovo cluster risultante dalla fusione
 	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
-	 */
+	*/
 	Cluster mergeCluster(Cluster c) throws CloneNotSupportedException{
 
 		// clona il cluster corrente ed aggiunge ad esso tutti gli elementi del cluster in input
 		Cluster newC = this.clone();
 
-		Iterator<Integer> iterator2 = c.iterator();
+		Iterator<Integer> it = c.iterator();
 	
-		while (iterator2.hasNext()) {
-			newC.addData(iterator2.next());
+		while (it.hasNext()) {
+			newC.addData(it.next());
 		}
 		
 		return newC;
 	}
-
 
 	/* rimpiazzato con iterator
 

@@ -111,6 +111,14 @@ public class ServerOneClient extends Thread {
                             // se il cast ad intero fallisce, ovvero il nome di tabella inserito dall'utente non è composto solo da numeri, possiamo procedere normalemente
                         }
 
+
+                        // controlliamo il client abbia inviato un singolo nome di tabella (senza spazi)
+                        if(new_tableName.contains(" ")){
+                            this.out.writeObject("Il nome della tabella deve essere composto da un solo nome. (senza spazi)");
+                            System.out.println("!! Errore : Il nome della tabella che il client vuole inserire ("+new_tableName+") è composto da piu di una parola");
+                            continue;
+                        }
+
                         ArrayList<String> nomi_tabelle_presenti = tb.getAllTablesName();   // potrebbe generare DataBaseConnectionException, la gestiamo alla fine
                         System.out.println("Nomi tabelle trovati : "+nomi_tabelle_presenti.toString());     // tutti i nomi delle tabelle presenti sul db
                             

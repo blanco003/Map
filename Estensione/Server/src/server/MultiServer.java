@@ -14,7 +14,7 @@ public class MultiServer {
 
     /**
      *  Avvia il Server sulla porta 8080 e resta in attesa di richieste da parte dei Client.
-     *  @throws IOException se si verifica un errore durante l' input/output
+     *  @throws IOException se si verificano errori durante la connessione client-server.
      */
     public void avvia_server() throws IOException{
         

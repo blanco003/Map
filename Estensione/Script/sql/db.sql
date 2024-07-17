@@ -54,4 +54,9 @@ INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (1.0, 'stringa3', 'c', 4);
 INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (5.0, 'stringa4', 'd', 3);
 INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (0.0, 'stringa5', 'e', 5);
 
+
+CREATE TABLE mapdb.exampleTab5(
+ X1 float
+);
+
 COMMIT;

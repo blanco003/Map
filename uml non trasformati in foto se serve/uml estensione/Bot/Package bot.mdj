@@ -217,7 +217,7 @@
 											"top": 242,
 											"width": 408,
 											"height": 13,
-											"text": "-gestisci_input(Utente, String): void",
+											"text": "-handleInput(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -234,7 +234,7 @@
 											"top": 257,
 											"width": 408,
 											"height": 13,
-											"text": "-gestisci_chiamata_di_ritorno(Update): void",
+											"text": "-handleCallBackQuery(Utente, Update): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -268,7 +268,7 @@
 											"top": 287,
 											"width": 408,
 											"height": 13,
-											"text": "-saveFile(Utente, String): void",
+											"text": "-saveDendrogramOnFile(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -319,7 +319,7 @@
 											"top": 332,
 											"width": 408,
 											"height": 13,
-											"text": "-controlla_profondita(Utente, String): void",
+											"text": "-insertDepth(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -336,7 +336,7 @@
 											"top": 347,
 											"width": 408,
 											"height": 13,
-											"text": "-stampa_dendrogramma_distanza_scelta(Utente, int): void",
+											"text": "-printDendrogramByDistanceChoice(Utente, int): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -353,7 +353,7 @@
 											"top": 362,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_messaggio(String, Utente): void",
+											"text": "-sendMessage(String, Utente): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -370,7 +370,7 @@
 											"top": 377,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_scelta_dataset(Utente, String): void",
+											"text": "-sendChoiceDataset(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -387,7 +387,7 @@
 											"top": 392,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_scelta_caricamento(Utente, String): void",
+											"text": "-sendChoiceLoad(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -404,7 +404,7 @@
 											"top": 407,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_scelta_distanza(Utente, String): void",
+											"text": "-sendChoiceDistance(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -421,7 +421,7 @@
 											"top": 422,
 											"width": 408,
 											"height": 13,
-											"text": "-controlla_univocita(Utente, String): void",
+											"text": "-insertNewTableName(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -438,7 +438,7 @@
 											"top": 437,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_numero_esempi(Utente, String): void",
+											"text": "-insertNumberOfExamples(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -455,7 +455,7 @@
 											"top": 452,
 											"width": 408,
 											"height": 13,
-											"text": "-invia_transizione(Utente, String): void",
+											"text": "-insertTransition(Utente, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -472,7 +472,7 @@
 											"top": 467,
 											"width": 408,
 											"height": 13,
-											"text": "-modifica_messaggio(Utente, long, String): void",
+											"text": "-editMessage(Utente, long, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -489,7 +489,7 @@
 											"top": 482,
 											"width": 408,
 											"height": 13,
-											"text": "-data_corrente(): String",
+											"text": "-currentDate(): String",
 											"horizontalAlignment": 0
 										},
 										{
@@ -701,7 +701,7 @@
 											"top": 246,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "-nomeUtente: String",
+											"text": "-userName: String",
 											"horizontalAlignment": 0
 										},
 										{
@@ -735,7 +735,7 @@
 											"top": 276,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "-statoCorrente: String",
+											"text": "-userState: String",
 											"horizontalAlignment": 0
 										}
 									],
@@ -769,7 +769,7 @@
 											"top": 299,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~Utente(long, String;Connessione, String): void",
+											"text": "~Utente(long, String, Connection, String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -786,7 +786,7 @@
 											"top": 314,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~getNomeUtente(): void",
+											"text": "~getUserName(): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -820,7 +820,7 @@
 											"top": 344,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~getStato(): String",
+											"text": "~getUserState(): String",
 											"horizontalAlignment": 0
 										},
 										{
@@ -837,7 +837,7 @@
 											"top": 359,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~setStato(String): void",
+											"text": "~setUserState(String): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -854,7 +854,7 @@
 											"top": 374,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~setConnessione(Connessione): void",
+											"text": "~setConnection(Connessione): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -871,7 +871,7 @@
 											"top": 389,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~getConnessione(): void",
+											"text": "~getConnection(): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -888,7 +888,7 @@
 											"top": 404,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~collega(String, Integer): void",
+											"text": "~connect(String, Integer): void",
 											"horizontalAlignment": 0
 										},
 										{
@@ -905,7 +905,7 @@
 											"top": 419,
 											"width": 273.06689453125,
 											"height": 13,
-											"text": "~scollega(): void",
+											"text": "~disconnect(): void",
 											"horizontalAlignment": 0
 										}
 									],
@@ -1206,7 +1206,7 @@
 											"top": 672,
 											"width": 280.271484375,
 											"height": 13,
-											"text": "~scollega(): void",
+											"text": "~disconnect(): void",
 											"horizontalAlignment": 0
 										}
 									],
@@ -2030,7 +2030,7 @@
 											"top": 635,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "CARICAMENTO",
+											"text": "LOADING",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2047,7 +2047,7 @@
 											"top": 650,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "SUCCESSO",
+											"text": "SUCCESS",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2064,7 +2064,7 @@
 											"top": 665,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "ERRORE",
+											"text": "ERROR",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2081,7 +2081,7 @@
 											"top": 680,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "CONNESSIONE",
+											"text": "CONNECTION",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2132,7 +2132,7 @@
 											"top": 725,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "CARTELLA",
+											"text": "FOLDER",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2149,7 +2149,7 @@
 											"top": 740,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "NUOVO",
+											"text": "NEW",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2166,7 +2166,7 @@
 											"top": 755,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "CESTINO",
+											"text": "BIN",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2217,7 +2217,7 @@
 											"top": 800,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "CATENA",
+											"text": "CHAIN",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2234,7 +2234,7 @@
 											"top": 815,
 											"width": 124.20166015625,
 											"height": 13,
-											"text": "MEDIA",
+											"text": "AVERAGE",
 											"horizontalAlignment": 0
 										}
 									],
@@ -2401,7 +2401,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "CARICAMENTO"
+									"name": "LOADING"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2409,7 +2409,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "SUCCESSO"
+									"name": "SUCCESS"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2417,7 +2417,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "ERRORE"
+									"name": "ERROR"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2425,7 +2425,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "CONNESSIONE"
+									"name": "CONNECTION"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2449,7 +2449,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "CARTELLA"
+									"name": "FOLDER"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2457,7 +2457,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "NUOVO"
+									"name": "NEW"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2465,7 +2465,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "CESTINO"
+									"name": "BIN"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2489,7 +2489,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "CATENA"
+									"name": "CHAIN"
 								},
 								{
 									"_type": "UMLEnumerationLiteral",
@@ -2497,7 +2497,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQp8w44rNUFew="
 									},
-									"name": "MEDIA"
+									"name": "AVERAGE"
 								}
 							]
 						}
@@ -2596,7 +2596,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "gestisci_input",
+							"name": "handleInput",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2605,8 +2605,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDbb4fiK8uk="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2614,8 +2613,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDbb4fiK8uk="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2634,7 +2632,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "gestisci_chiamata_di_ritorno",
+							"name": "handleCallBackQuery",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2643,8 +2641,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDboHPiQzkw="
 									},
-									"name": "Update",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2654,6 +2651,15 @@
 									},
 									"type": "void",
 									"direction": "return"
+								},
+								{
+									"_type": "UMLParameter",
+									"_id": "AAAAAAGQt0aoPwEAJs0=",
+									"_parent": {
+										"$ref": "AAAAAAGQnDboHPiQzkw="
+									},
+									"name": "Update",
+									"type": ""
 								}
 							]
 						},
@@ -2701,7 +2707,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "saveFile",
+							"name": "saveDendrogramOnFile",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2710,8 +2716,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcA9PicrWM="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2719,8 +2724,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcA9PicrWM="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2786,7 +2790,8 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcarfio1kI="
 									},
-									"name": "Utente"
+									"name": "Utente",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -2794,7 +2799,8 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcarfio1kI="
 									},
-									"name": "String"
+									"name": "String",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -2813,7 +2819,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "controlla_profondita",
+							"name": "insertDepth",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2822,8 +2828,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcpvviuIPM="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2831,8 +2836,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDcpvviuIPM="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2851,7 +2855,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "stampa_dendrogramma_distanza_scelta",
+							"name": "printDendrogramByDistanceChoice",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2860,8 +2864,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDc2jPi04HA="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2869,8 +2872,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDc2jPi04HA="
 									},
-									"name": "int",
-									"type": ""
+									"name": "int"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2889,7 +2891,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_messaggio",
+							"name": "sendMessage",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2898,8 +2900,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdLuvi6jvk="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2907,8 +2908,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdLuvi6jvk="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2927,7 +2927,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_scelta_dataset",
+							"name": "sendChoiceDataset",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2936,8 +2936,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdYvvjAveI="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2945,8 +2944,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdYvvjAveI="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2965,7 +2963,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_scelta_caricamento",
+							"name": "sendChoiceLoad",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -2974,8 +2972,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdvCfjG+yw="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2983,8 +2980,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDdvCfjG+yw="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3003,7 +2999,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_scelta_distanza",
+							"name": "sendChoiceDistance",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3012,8 +3008,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxX5/klsC8="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3021,8 +3016,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxX5/klsC8="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3041,7 +3035,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "controlla_univocita",
+							"name": "insertNewTableName",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3050,8 +3044,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxjmPkrZgU="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3059,8 +3052,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxjmPkrZgU="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3079,7 +3071,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_numero_esempi",
+							"name": "insertNumberOfExamples",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3088,8 +3080,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxunPkxv9I="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3097,8 +3088,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDxunPkxv9I="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3117,7 +3107,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "invia_transizione",
+							"name": "insertTransition",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3126,8 +3116,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDyIVvk34J4="
 									},
-									"name": "Utente",
-									"type": ""
+									"name": "Utente"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3135,8 +3124,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDyIVvk34J4="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3155,7 +3143,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "modifica_messaggio",
+							"name": "editMessage",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3189,8 +3177,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnDyW1fk9MqQ="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								}
 							]
 						},
@@ -3200,7 +3187,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnDVKd/hLXK4="
 							},
-							"name": "data_corrente",
+							"name": "currentDate",
 							"visibility": "private",
 							"parameters": [
 								{
@@ -3301,7 +3288,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "nomeUtente",
+							"name": "userName",
 							"visibility": "private",
 							"type": "String"
 						},
@@ -3321,7 +3308,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "statoCorrente",
+							"name": "userState",
 							"visibility": "private",
 							"type": "String"
 						}
@@ -3342,8 +3329,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnPwK7EKNQ7k="
 									},
-									"name": "long",
-									"type": ""
+									"name": "long"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3351,8 +3337,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnPwK7EKNQ7k="
 									},
-									"name": "String;Connessione",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3360,8 +3345,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnPwK7EKNQ7k="
 									},
-									"name": "String",
-									"type": ""
+									"name": "Connection"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3371,6 +3355,15 @@
 									},
 									"type": "void",
 									"direction": "return"
+								},
+								{
+									"_type": "UMLParameter",
+									"_id": "AAAAAAGQt10GGQ7qkoM=",
+									"_parent": {
+										"$ref": "AAAAAAGQnPwK7EKNQ7k="
+									},
+									"name": "String",
+									"type": ""
 								}
 							]
 						},
@@ -3380,7 +3373,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "getNomeUtente",
+							"name": "getUserName",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3420,7 +3413,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "getStato",
+							"name": "getUserState",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3440,7 +3433,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "setStato",
+							"name": "setUserState",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3449,8 +3442,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnPxCGUKl1i0="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3469,7 +3461,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "setConnessione",
+							"name": "setConnection",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3478,8 +3470,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnPxRaUKrheQ="
 									},
-									"name": "Connessione",
-									"type": ""
+									"name": "Connessione"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3498,7 +3489,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "getConnessione",
+							"name": "getConnection",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3518,7 +3509,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "collega",
+							"name": "connect",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3527,8 +3518,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnP2pFELW+jY="
 									},
-									"name": "String",
-									"type": ""
+									"name": "String"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3536,8 +3526,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGQnP2pFELW+jY="
 									},
-									"name": "Integer",
-									"type": ""
+									"name": "Integer"
 								},
 								{
 									"_type": "UMLParameter",
@@ -3556,7 +3545,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMoWMkIZ9FQ="
 							},
-							"name": "scollega",
+							"name": "disconnect",
 							"visibility": "package",
 							"parameters": [
 								{
@@ -3698,7 +3687,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGQnMo0ZUJDKUM="
 							},
-							"name": "scollega",
+							"name": "disconnect",
 							"visibility": "package",
 							"parameters": [
 								{

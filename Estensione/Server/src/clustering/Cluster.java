@@ -37,7 +37,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 	}
 
 
-	/* rimossos
+	/* rimosso
 	void addData(int id){
 		// controllo duplicati
 		for(int i=0; i<clusteredData.length;i++)
@@ -49,15 +49,6 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 		clusteredData[clusteredData.length-1]=id;			
 	}
 
-
-	/* da rimpiazzare con interfaccia clonable
-	Cluster createACopy() {
-			Cluster copyC=new Cluster();
-			for (int i=0;i<getSize();i++)
-				copyC.addData(clusteredData[i]);
-			return copyC;
-	}
-	*/
 
 	/**
 	 * Restituisce un iteratore per gli elementi del cluster.
@@ -73,32 +64,31 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 		return clusteredData[i];
 	}
 	*/
+	
+	
+	/* da rimpiazzare con interfaccia clonable
+	Cluster createACopy() {
+			Cluster copyC=new Cluster();
+			for (int i=0;i<getSize();i++)
+				copyC.addData(clusteredData[i]);
+			return copyC;
+	}
+	*/
 
 	/**
 	 * Crea una copia del cluster corrente.
 	 *
 	 * @return un clone del cluster corrente
 	 * @throws CloneNotSupportedException se il clone non è supportato
-	 */
-	public Cluster clone() throws CloneNotSupportedException{
-		return (Cluster) super.clone();
-
-	}
-
-	/* rimosso
-	public Integer get(int i){
-		Iterator<Integer> it = iterator();
-		Integer res = null;
-		int j = 0;
-		while(it.hasNext()){
-			if(j==i){
-				res =  it.next();
-			}
-			j++;
-		}
-		return res;
-	}
 	*/
+	public Cluster clone() throws CloneNotSupportedException {
+        
+        Cluster cluster_copia = (Cluster) super.clone();
+        cluster_copia.clusteredData = new TreeSet<>(this.clusteredData);
+        return cluster_copia;
+        
+    }
+
 
 	/* rimpiazzato con iterator 
 	Cluster mergeCluster (Cluster c){
@@ -125,10 +115,10 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 		// clona il cluster corrente ed aggiunge ad esso tutti gli elementi del cluster in input
 		Cluster newC = this.clone(); 
 
-		Iterator<Integer> iterator2 = c.iterator();
+		Iterator<Integer> it = c.iterator();
 	
-		while (iterator2.hasNext()) {
-			newC.addData(iterator2.next());
+		while (it.hasNext()) {
+			newC.addData(it.next());
 		}
 		
 		return newC;

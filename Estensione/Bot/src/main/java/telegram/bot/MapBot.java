@@ -38,19 +38,19 @@ public class MapBot extends TelegramLongPollingBot {
      */
     private enum Emoji{
 
-        CARICAMENTO ("\u231B"),
-        SUCCESSO("\u2705"),
-        ERRORE("\u274C"),
-        CONNESSIONE("\uD83C\uDF10"),
+        LOADING ("\u231B"),
+        SUCCESS("\u2705"),
+        ERROR("\u274C"),
+        CONNECTION("\uD83C\uDF10"),
         RESTART("\uD83D\uDD01"),
         STOP("\uD83D\uDED1"),
-        CARTELLA("\uD83D\uDCC1"),
-        NUOVO("\u2795"),
-        CESTINO("\uD83D\uDDD1️"),
+        FOLDER("\uD83D\uDCC1"),
+        NEW("\u2795"),
+        BIN("\uD83D\uDDD1️"),
         DB("\uD83D\uDCBE"),
         FILE("\uD83D\uDCC4"),
-        CATENA("\uD83D\uDD17"),
-        MEDIA("\u2696");
+        CHAIN("\uD83D\uDD17"),
+        AVERAGE("\u2696");
         
         /** Codice unicode dell'Emoji*/
         private final String unicode;
@@ -81,14 +81,15 @@ public class MapBot extends TelegramLongPollingBot {
         super(token);    
         this.Token = token;
         this.Username = Username;
-        System.out.println("\n" +data_corrente()+" - Il bot è ora disponibile su telegram con nome utente : @"+ Username);
+        System.out.println("\n" +currentDate()+" - Il bot è ora disponibile su telegram con nome utente : @"+ Username);
     }
 
     /*  Lista comandi
-     *  /start   -  l'utente ha iniziato la conversazione, viene stampato il messagio di benvenuto e viene chiesto di connetersi al server
-     *  /connect   -  inizializza la connessione dell'utente (client) al server
-     *  /restart  - viene chiusa la connessione al server e riaperta automanticamente, in questo modo viene scartato il dataset caricato
+     *  /start  - l'utente ha iniziato la conversazione, viene stampato il messagio di benvenuto e viene chiesto di connetersi al server
+     *  /connect -  l'utente (client) si collega la server 
+     *  /restart  - l'utente può riavviare la conversazione in qualsiasi momento, viene chiusa la connessione al server e riaperta automanticamente (in questo modo viene scartato il dataset caricato)
      */
+    
     
     // ereditato da TelegramLongPollingBot
     /**
@@ -101,14 +102,16 @@ public class MapBot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()) {
 
             long chat_id = update.getCallbackQuery().getMessage().getChatId();
+
             // se l'utente ha premuto un bottone, allora aveva già interagito con il bot dunque lo recuperiamo direttamente dall'hashmap
             Utente utente = utenti.get(chat_id); 
-            System.out.println(data_corrente()+" - Utente : ("+utente.getNomeUtente()+") - Ricevuta callback query: " + update.getCallbackQuery().getData());
+            
+            System.out.println(currentDate()+" - Utente : ("+utente.getUserName()+") - Ricevuta callback query: " + update.getCallbackQuery().getData());
             
             try {
-                gestisci_chiamata_di_ritorno(utente,update);
+                handleCallBackQuery(utente,update);
             } catch (IOException e) {
-                System.out.println(data_corrente()+" - Utente : ("+ utente+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : ("+ utente+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
                 e.printStackTrace();
             }
 
@@ -128,71 +131,84 @@ public class MapBot extends TelegramLongPollingBot {
                 utenti.put(chat_id,utente);
             }
     
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato() + "), chat id : (" + chat_id + ") ha inviato : " + message_text);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState() + "), chat id : (" + chat_id + ") ha inviato : " + message_text);
             
             if (message_text.equals("/start")) {        // l'utente ha appena inziato la conversazione
 
-            if(utente.getConnessione()==null){
-                invia_messaggio("Benvenuto su map, per favore collegati al server tramite il comando /connect", utente);
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (default)");
-                utente.setStato("default");
+            if(utente.getConnection()==null){
+                sendMessage("Benvenuto su map, per favore collegati al server tramite il comando /connect", utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (default)");
+                utente.setUserState("default");
             
             }else{
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " Hai già avviato la conversazione e sei già collegato al server, se vuoi riavviare la conversazione e la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+                sendMessage(Emoji.ERROR.getUnicode() + " Hai già avviato la conversazione e sei già collegato al server, se vuoi riavviare la conversazione e la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
             }
                 
                 
 
             } else if(message_text.equals("/restart")){   // l'utente desidera ristabilire la connessione scartando le scelte eseguite fino ad un determinato momento
 
-                if(utente.getConnessione()==null){
-                    invia_messaggio(Emoji.ERRORE.getUnicode() + " Non sei ancora collegato ancora al server, puoi iniziare direttamente connettendoti tramite il comando /connect", utente);
+                if(utente.getConnection()==null){
+                    sendMessage(Emoji.ERROR.getUnicode() + " Non sei ancora collegato ancora al server, puoi iniziare direttamente connettendoti tramite il comando /connect", utente);
                     return;
                 }
                 
                 try{
-                    utente.scollega();
-                    utente.collega("127.0.0.1", 8080);
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato e ricollegato correttamente al server");
-                    invia_messaggio(Emoji.CONNESSIONE.getUnicode() + " La connessione è stata riavviata con successo.", utente);
-                    invia_scelta_dataset(utente, "Cosa desideri fare ?");
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
-                    utente.setStato("attesa_risposta");
+                    utente.disconnect();
+                    utente.connect("127.0.0.1", 8080);
+
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , scollegato e ricollegato correttamente al server");
+                    
+                    sendMessage(Emoji.CONNECTION.getUnicode() + " La connessione è stata riavviata con successo.", utente);
+                    sendChoiceDataset(utente, "Cosa desideri fare ?");
+                    
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (attesa_risposta)");
+                    utente.setUserState("attesa_risposta");
 
                 }catch(IOException e){
-                    System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , Eccezione : "+e.getMessage());
-                    invia_messaggio(e.getMessage(), utente);
+                    System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , Eccezione : "+e.getMessage());
+                    sendMessage(e.getMessage(), utente);
                 }
 
                
             }else if(message_text.equals("/connect")){      
 
-                if(utente.getConnessione()!=null){
-                    invia_messaggio(Emoji.STOP.getUnicode() + " Sei già connesso con il server, se vuoi riavviare la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+                if(utente.getConnection()!=null){
+                    sendMessage(Emoji.STOP.getUnicode() + " Sei già connesso con il server, se vuoi riavviare la connessione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
                     return;
                 }
 
                 try{
-                    utente.collega("127.0.0.1", 8080);
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , collegato correttamente al server");
-                    invia_messaggio(Emoji.CONNESSIONE.getUnicode() + " Connessione con il server andata a buon fine", utente);
-                    invia_scelta_dataset(utente, "Cosa desideri fare ?");
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
-                    utente.setStato("attesa_risposta");
+                    utente.connect("127.0.0.1", 8080);
+
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , collegato correttamente al server");
+                    
+                    sendMessage(Emoji.CONNECTION.getUnicode() + " Connessione con il server andata a buon fine", utente);
+                    sendChoiceDataset(utente, "Cosa desideri fare ?");
+                    
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (attesa_risposta)");
+                    utente.setUserState("attesa_risposta");
 
                 }catch(IOException e){
-                    System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , Eccezione : "+e.getMessage());
-                    invia_messaggio(Emoji.ERRORE.getUnicode() +" La connessione al server non è andata a buon fine, per favore verifica il server sia online e riprova /connect", utente);
+                    System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+" , Eccezione : "+e.getMessage());
+                    sendMessage(Emoji.ERROR.getUnicode() +" La connessione al server non è andata a buon fine, per favore verifica il server sia online e riprova /connect", utente);
                 }
 
                 
-            }else{   
+            }else{  
+                
                 // se non stati eseguiti comandi, ma è stato ricevuto del semplice testo dobbiamo controllare 
                 // in quale stato si trova l'utente ed effettuare la gestione corrispondente
+
+                if(utente.getConnection()==null){
+                    sendMessage(Emoji.ERROR.getUnicode() + " Non sei ancora collegato ancora al server, per favore inizia a connetterti tramite il comando /connect", utente);
+                    return;
+                }
+
                 try {
-                    gestisci_input(utente, message_text);
+                    handleInput(utente, message_text);
                 } catch (IOException|ClassNotFoundException e) {
-                    System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
+                    System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+" , Eccezione durante la comunicazione con il server : "+e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -205,89 +221,96 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che ha interagito con il bot.
      * @param update Oggetto contenente l'aggioramento rilevato.
      */
-    private void gestisci_chiamata_di_ritorno(Utente utente, Update update) throws IOException{
+    private void handleCallBackQuery(Utente utente, Update update) throws IOException{
         
         String call_data = update.getCallbackQuery().getData();
-        long message_id = update.getCallbackQuery().getMessage().getMessageId();
+        long message_id = update.getCallbackQuery().getMessage().getMessageId();  
 
-        System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+")");
+        System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+")");
         
-        if(utente.getStato().equals("attesa_risposta")){ 
+        if(utente.getUserState().equals("attesa_risposta")){ 
         
             if (call_data.equals("call_back_carica_dataset")){
 
                 // se l'utente ha premuto il bottone per caricare un dataset già presente sul db allora spediamo al server uno 0 
-                utente.getConnessione().getObjectOutputStream().writeObject(0);
+                utente.getConnection().getObjectOutputStream().writeObject(0);
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (carica_dati)");              
-                utente.setStato("carica_dati");
-                modifica_messagio(utente, message_id, "Hai scelto di caricare un dataset già presente sul database.");
-                invia_messaggio("Inserisci il nome della tabella del database da cui ricavare il dataset :", utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (carica_dati)");              
+                utente.setUserState("carica_dati");
+                
+                editMessage(utente, message_id, "Hai scelto di caricare un dataset già presente sul database.");
+                sendMessage("Inserisci il nome della tabella del database da cui ricavare il dataset :", utente);
 
             } else if (call_data.equals("call_back_crea_nuovo_dataset")){
 
-                // se l'utente ha eseguito il comando per inserire un nuovo dataset sul db allora spediamo al server un 1
-                utente.getConnessione().getObjectOutputStream().writeObject(1);
+                // se l'utente ha premuto il bottone per inserire un nuovo dataset sul db allora spediamo al server un 1
+                utente.getConnection().getObjectOutputStream().writeObject(1);
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (inserimento_nome_nuova_tabella)");              
-                utente.setStato("inserimento_nome_nuova_tabella");
-                modifica_messagio(utente, message_id, "Hai scelto di creare un nuovo dataset sul database.");
-                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset, che vuoi aggiungere sul database :", utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (inserimento_nome_nuova_tabella)");              
+                utente.setUserState("inserimento_nome_nuova_tabella");
+                
+                editMessage(utente, message_id, "Hai scelto di creare un nuovo dataset sul database.");
+                sendMessage("Inserisci il nome della tabella, la quale rappresenta il dataset, che vuoi aggiungere sul database :", utente);
             
             }  else if (call_data.equals("call_back_elimina_dataset")){
 
-                // se l'utente ha premuto il bottone per eliminare un dataset dal db allora spediamo al server un 5 
-                utente.getConnessione().getObjectOutputStream().writeObject(2);
+                // se l'utente ha premuto il bottone per eliminare un dataset dal db allora spediamo al server un 2
+                utente.getConnection().getObjectOutputStream().writeObject(2);
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (elimina_dataset)");              
-                utente.setStato("elimina_dataset");
-                modifica_messagio(utente, message_id, "Hai scelto di eliminare un dataset dal database.");
-                invia_messaggio("Inserisci il nome della tabella, la quale rappresenta il dataset , che vuoi eliminare dal database :", utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (elimina_dataset)");              
+                utente.setUserState("elimina_dataset");
+                
+                editMessage(utente, message_id, "Hai scelto di eliminare un dataset dal database.");
+                sendMessage("Inserisci il nome della tabella, la quale rappresenta il dataset , che vuoi eliminare dal database :", utente);
             
             }  else if (call_data.equals("call_back_apprendi_da_db")) {
 
-                // se l'utente ha premuto il bottone per apprendere il dendrogramma dal db allora spediamo al server un 2
-                utente.getConnessione().getObjectOutputStream().writeObject(3);
+                // se l'utente ha premuto il bottone per apprendere il dendrogramma dal db allora spediamo al server un 3
+                utente.getConnection().getObjectOutputStream().writeObject(3);
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (inserisci_profondita)");
-                utente.setStato("inserisci_profondita");
-                modifica_messagio(utente, message_id, "Hai scelto di apprendere il dendrogramma dal db");
-                invia_messaggio("Inserisci la profondità del dendrogramma : ", utente);  
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (insertDepth)");
+                utente.setUserState("insertDepth");
+                
+                editMessage(utente, message_id, "Hai scelto di apprendere il dendrogramma dal db");
+                sendMessage("Inserisci la profondità del dendrogramma : ", utente);  
 
             } else if (call_data.equals("call_back_carica_da_file")) {
 
-                // se l'utente ha premuto il bottone per caricare il dendrogramma da file allora spediamo al server un 3 
-                utente.getConnessione().getObjectOutputStream().writeObject(4);
+                // se l'utente ha premuto il bottone per caricare il dendrogramma da file allora spediamo al server un 4 
+                utente.getConnection().getObjectOutputStream().writeObject(4);
             
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (caricamento_file)");
-                utente.setStato("caricamento_file");
-                modifica_messagio(utente, message_id, "Hai scelto di caricare il dendrogramma da file");
-                invia_messaggio("Inserisci il nome dell'archivio (compreso di estensione)", utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (caricamento_file)");
+                utente.setUserState("caricamento_file");
+                
+                editMessage(utente, message_id, "Hai scelto di caricare il dendrogramma da file");
+                sendMessage("Inserisci il nome dell'archivio (compreso di estensione)", utente);
            
             
             } else if (call_data.equals("call_back_single_link") || call_data.equals("call_back_average_link")) {
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (scelta_distanza)");
-                utente.setStato("scelta_distanza");
+                // l'utente ha premuto sul bottone single link distance o avera link distance dopo aver caricato correttamente il dataset
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (scelta_distanza)");
+                utente.setUserState("scelta_distanza");
 
                 int scelta; // il server specifica (1) per SingleLinkDistance e (2) per AverageLinkDistance
 
                 if(call_data.equals("call_back_single_link")){
                     scelta = 1;
-                    modifica_messagio(utente, message_id, "Hai scelto la distanza single link");
+                    editMessage(utente, message_id, "Hai scelto la distanza single link");
                 }else{
                     scelta = 2;
-                    modifica_messagio(utente, message_id, "Hai scelto la distanza average link");
+                    editMessage(utente, message_id, "Hai scelto la distanza average link");
                 }   
 
-                stampa_dendrogramma_distanza_scelta(utente, scelta);
+                printDendrogramByDistanceChoice(utente, scelta);
             
             }
 
         }else{
             // è stato rilevato un callback, ma l'utente non era nello stato di attessa_risposta ovvero doveva rispondedere ad un menu in quel momento
-            modifica_messagio(utente, message_id, Emoji.ERRORE.getUnicode() + " Non puoi piu considerare questo messaggio !");
-            invia_messaggio(Emoji.ERRORE.getUnicode() + " Non puoi rispondere a vecchi messaggi !", utente);    
+            editMessage(utente, message_id, Emoji.ERROR.getUnicode() + " Non puoi piu considerare questo messaggio !");
+            sendMessage(Emoji.ERROR.getUnicode() + " Non puoi rispondere a vecchi messaggi !", utente);    
         }
       
     }
@@ -297,9 +320,9 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param message_text Messaggio inviato dall'utente
      */
-    private void gestisci_input(Utente utente, String message_text) throws IOException, ClassNotFoundException{
+    private void handleInput(Utente utente, String message_text) throws IOException, ClassNotFoundException{
         
-        if (utente.getStato().equals("carica_dati")) {
+        if (utente.getUserState().equals("carica_dati")) {
 
             /* l'utente aveva gia eseguito il comando per scegliere di caricare un dataset già presente sul db dunque il server è ancora in attesa che l'utente
              * inserisca un nome di tabella valido quindi non dobbiamo rispedire un altro 0 ma viene richiesto all'utente ripetutamente il nome della 
@@ -307,63 +330,64 @@ public class MapBot extends TelegramLongPollingBot {
 
             loadDataOnServer(utente, message_text);
 
-        }else if(utente.getStato().equals("caricamento_file")){
+        }else if(utente.getUserState().equals("caricamento_file")){
 
             /* l'utente aveva gia eseguito il comando per scegliere di caricare un dataset da file dunque il server è ancora in attesa che l'utente
              * inserisca un nome di file valido quindi non dobbiamo rispedire un altro 3 ma viene richiesto all'utente ripetutamente il nome  
              * di un file finchè non inserisce un file valido (esistente e con un dendrogramma salvato) */
             loadDedrogramFromFileOnServer(utente,message_text);
 
-        } else if(utente.getStato().equals("inserisci_profondita")){
+        } else if(utente.getUserState().equals("insertDepth")){
 
            /* l'utente aveva gia eseguito il comando per apprendere il dendrogramma dal db ed inserire la profondita dunque il server è ancora in attesa che l'utente
              * inserisca una profondita valida quindi non dobbiamo rispedire un altro 2 ma viene richiesto all'utente ripetutamente  
              * la profondita finchè non inserisce una valida */
 
-            inserisci_profondita(utente, message_text);
+            insertDepth(utente, message_text);
 
-        } else if(utente.getStato().equals("salvataggio")){
+        } else if(utente.getUserState().equals("salvataggio")){
 
             // l'utente ha inviato il nome del file sul quale eseguire il salvataggio
 
-            saveFile(utente, message_text);
+            saveDendrogramOnFile(utente, message_text);
 
 
-        } else if(utente.getStato().equals("inserimento_nome_nuova_tabella")){
+        } else if(utente.getUserState().equals("inserimento_nome_nuova_tabella")){
 
             /* l'utente aveva già inserito il comando per inserire un nuovo dataset quindi il server è ancora in attesa di un nome del dataset
              * dunque non dobbiamo rispedire un altro 1 ma viene richiesto all'utente di inserire un nome di tabella nuovo finche
              * non inserisce uno non ancora esistente.
              */
              
-            controlla_univocita_nome_tabella(utente, message_text); // non restituisce true o false, ma se il nome è valido aggiorna lo stato dell'utente
+            insertNewTableName(utente, message_text);
 
-        }else if(utente.getStato().equals("inserimento_numero_esempi")){
+        }else if(utente.getUserState().equals("inserimento_numero_esempi")){
 
             // l'utente inserisce il numero di esempi che desidera avere in ogni transizione nel nuovo dataset
 
-            invia_numero_esempi(utente,message_text);
+            insertNumberOfExamples(utente,message_text);
 
-        }else if(utente.getStato().equals("inserimento_dataset")){
+        }else if(utente.getUserState().equals("inserimento_dataset")){
 
             // l'utente invia la transizione da inserire nel nuovo dataset
 
-            invia_transizione(utente,message_text);
+            insertTransition(utente,message_text);
 
-        }else if(utente.getStato().equals("continua_inserimento")){
+        }else if(utente.getUserState().equals("continua_inserimento")){
 
             // l'utente continua ad inserire transizioni nel nuovo dataset
 
-            utente.getConnessione().getObjectOutputStream().writeObject(message_text);
+            utente.getConnection().getObjectOutputStream().writeObject(message_text);
             // il messaggio ricevuto dall'utente contiene la risposta alla domanda se l'utente vuole continuare ad inserire un'altra transizione   
 
             if(message_text.equalsIgnoreCase("si")){
 
                 // se l'utente risponde si continua l'inserimento di transizioni
 
-                invia_messaggio("Inserisci la prossima transizione, rispettando sempre il formato specificato precedentemente", utente);
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (inserimento_dataset)");
-                utente.setStato("inserimento_dataset");
+                sendMessage("Inserisci la prossima transizione, rispettando sempre il formato specificato precedentemente", utente);
+                
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (inserimento_dataset)");
+                utente.setUserState("inserimento_dataset");
 
 
             }else if (message_text.equalsIgnoreCase("no")){
@@ -371,49 +395,51 @@ public class MapBot extends TelegramLongPollingBot {
                 // se l'utente risponde no, il server risponde con un messaggio OK DATASET per far capire
                 // che il dataset è stato costruito correttamente sul database
 
-                String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+                String risposta= (String) (utente.getConnection().getObjectInputStream().readObject());
  
-
                 if(risposta.equals("OK DATASET")){  // il dataset è stato caricato correttamente sul db
-                    invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il dataset è stato creato correttamente sul database ed è stato caricato, puoi procedere con la scelta del tipo di caricamento", utente);
-                    invia_scelta_caricamento(utente, "Esegui una scelta di caricamento");
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)");
-                    utente.setStato("attesa_risposta");
+
+                    sendMessage(Emoji.SUCCESS.getUnicode() + " Il dataset è stato creato correttamente sul database ed è stato caricato per essere utilizzato.", utente);
+                    sendChoiceLoad(utente, "Come desideri caricare il Dendrogramma ? ");
+                    
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") --> (attesa_risposta)");
+                    utente.setUserState("attesa_risposta");
                 }else{
-                    utente.scollega();
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
-                    invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconnesso per favore riconnettiti tramite il comando /connect", utente);
+
+                    utente.disconnect();
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , scollegato correttamente dal server");
+                    sendMessage(Emoji.ERROR.getUnicode()+" Si sono verificati degli errori durante l'inserimento del dataset, sei stato disconnesso per favore riconnettiti tramite il comando /connect", utente);
                 }
 
                 
             }else{
 
                 // se l'utente risponde con un messaggio che non è nè si nè no, il server richiede di inserire una risposta finche l'utente non inserisce si o no
-                String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
-                invia_messaggio(Emoji.ERRORE.getUnicode() + risposta, utente);
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , stato : (" + utente.getStato()+ ") -->  rimane ("+ utente.getStato()+")");
+                String risposta = (String) (utente.getConnection().getObjectInputStream().readObject());
+                sendMessage(Emoji.ERROR.getUnicode() + risposta, utente);
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , stato : (" + utente.getUserState()+ ") -->  rimane ("+ utente.getUserState()+")");
             }
 
 
-        } else if(utente.getStato().equals("elimina_dataset")){
+        } else if(utente.getUserState().equals("elimina_dataset")){
 
             /* l'utente aveva gia eseguito il comando per eliminare un dataset dal db dunque il server è ancora in attesa che l'utente
              * inserisca un nome di tabella valido da eliminare quindi non dobbiamo rispedire un altro 5 ma viene richiesto all'utente ripetutamente il nome della 
              * tabella da eliminare finchè non inserisce un nome di tabella esistente */
             deleteDataOnServer(utente, message_text);
 
-        } else if(utente.getStato().equals("file_caricato") || utente.getStato().equals("file_salvato")){
+        } else if(utente.getUserState().equals("file_caricato") || utente.getUserState().equals("file_salvato")){
 
-            invia_messaggio("Hai già caricato il dataset e stampato il Dendrogramma correttamente, se vuoi ricominciare l'esecuzione esegui il comando /restart " + Emoji.RESTART.getUnicode(), utente);
+            sendMessage("Hai già caricato il dataset e stampato il Dendrogramma correttamente, se vuoi ricominciare l'esecuzione esegui il comando /restart " + Emoji.RESTART.getUnicode(), utente);
         
-        } else if(utente.getStato().equals("attesa_risposta")){   // è presente un menu a bottoni in cui l'utente non ha ancora effettuato una scelta
+        } else if(utente.getUserState().equals("attesa_risposta")){   // è presente un menu a bottoni in cui l'utente non ha ancora effettuato una scelta
             
           
-            invia_messaggio(Emoji.STOP.getUnicode() + " Prima di procedere effettua una scelta al messaggio precedente.", utente);
+            sendMessage(Emoji.STOP.getUnicode() + " Prima di procedere effettua una scelta al messaggio precedente.", utente);
 
         } else{ 
             // in tutti gli altri casi rispediamo quello che ha inserito specificando che il comando non è riconosciuto
-            invia_messaggio(Emoji.STOP.getUnicode() + " Comando non riconosciuto : "+message_text, utente);
+            sendMessage(Emoji.STOP.getUnicode() + " Comando non riconosciuto : "+message_text, utente);
            
         }
     }
@@ -428,37 +454,43 @@ public class MapBot extends TelegramLongPollingBot {
      */
     private void loadDataOnServer(Utente utente, String tableName) {
 
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo caricamento dataset in corso...", utente);
+        sendMessage(Emoji.LOADING.getUnicode() + " Processo caricamento dataset in corso...", utente);
 
         try {
-		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
 
-		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+		    utente.getConnection().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
+		    String risposta= (String) (utente.getConnection().getObjectInputStream().readObject());
 
 		    if(risposta.equals("OK")){	
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : caricato correttamente il dataset");
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il dataset è stato caricato correttamente.", utente);
-                utente.setStato("attesa_risposta");
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (attesa_risposta)"); 
-                invia_scelta_caricamento(utente, "Come desideri caricare il Dendrogramma ? ");
+
+                sendMessage(Emoji.SUCCESS.getUnicode() + " Il dataset è stato caricato correttamente.", utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") : caricato correttamente il dataset");
+                utente.setUserState("attesa_risposta");
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (attesa_risposta)"); 
+                
+                sendChoiceLoad(utente, "Come desideri caricare il Dendrogramma ? ");
                 
 
             }else{
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -- > rimane ("+utente.getStato()+")");
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente);
-                invia_messaggio("Inserisci nuovamente il nome della tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
+
+                sendMessage(Emoji.ERROR.getUnicode() + " "+risposta, utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") -- > rimane ("+utente.getUserState()+")");
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , risposta dal sever : "+risposta);
+                
+                sendMessage("Inserisci nuovamente il nome della tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -471,40 +503,44 @@ public class MapBot extends TelegramLongPollingBot {
      * @param fileName Nome del file su cui è presente il clustering che si vuole caricare
      */
     private void loadDedrogramFromFileOnServer(Utente utente, String fileName) {
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo di caricamento file in corso...", utente);
+        sendMessage(Emoji.LOADING.getUnicode() +" Processo di caricamento file in corso...", utente);
 
         try {
               
-            utente.getConnessione().getObjectOutputStream().writeObject(fileName);   // spediamo al server il nome del file
-            String risposta = (String) utente.getConnessione().getObjectInputStream().readObject();
+            utente.getConnection().getObjectOutputStream().writeObject(fileName);   // spediamo al server il nome del file
+            String risposta = (String) utente.getConnection().getObjectInputStream().readObject();
 
             if (risposta.equals("OK")) {    
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Dendrogramma caricato con successo : ", utente);
-    
-                String dendrogramma = (String) utente.getConnessione().getObjectInputStream().readObject();
-                invia_messaggio(dendrogramma, utente);  // inviamo all'utente un messaggio contenete il Dendrogramma caricato dal file
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (file_caricato)"); 
-                utente.setStato("file_caricato");
 
-                invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+                sendMessage(Emoji.SUCCESS.getUnicode() +" Dendrogramma caricato con successo : ", utente);
     
-            } else {
-                // se il server risponde con un messaggio di errore
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+ utente.getNomeUtente()+")"); 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " " +risposta, utente);    // invio all'utente l'errore generato
-                invia_messaggio("Per favore inserisci un file valido.", utente);
+                String dendrogramma = (String) utente.getConnection().getObjectInputStream().readObject();
+                sendMessage(dendrogramma, utente);  // inviamo all'utente un messaggio contenete il Dendrogramma caricato dal file
+                
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (file_caricato)"); 
+                utente.setUserState("file_caricato");
+
+                sendMessage("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+    
+            } else {  // se il server risponde con un messaggio di errore
+
+                sendMessage(Emoji.ERROR.getUnicode() + " " +risposta, utente);    // invio all'utente l'errore generato
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> rimane ("+ utente.getUserName()+")"); 
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
+                
+                sendMessage("Per favore inserisci un file valido.", utente);
             }
             
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
     }
     
@@ -515,42 +551,45 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param message_text Nome del file su cui effettuare il salvataggio
      */
-    private void saveFile(Utente utente, String message_text) {
+    private void saveDendrogramOnFile(Utente utente, String message_text) {
         
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo di salvataggio file in corso...", utente);
+        sendMessage(Emoji.LOADING.getUnicode() + " Processo di salvataggio file in corso...", utente);
 
         try {
-            utente.getConnessione().getObjectOutputStream().writeObject(message_text);  // inviamo al server il nome del file su cui l'utente vuole effettuare il salvataggio
+
+            utente.getConnection().getObjectOutputStream().writeObject(message_text);  // inviamo al server il nome del file su cui l'utente vuole effettuare il salvataggio
 
         } catch (IOException e) { // errori durante la comunicazione dell'utente con il server
 
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
 
         }
 
         
-        invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Il Dendrogramma è stato salvato con successo nel file : "+message_text, utente);
-        System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (file_salvato)");  
-        utente.setStato("file_salvato");
-        invia_messaggio("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+        sendMessage(Emoji.SUCCESS.getUnicode() +" Il Dendrogramma è stato salvato con successo nel file : "+message_text, utente);
+
+        System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (file_salvato)");  
+        utente.setUserState("file_salvato");
+        
+        sendMessage("Se vuoi ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
     }
 
     /**
      * Modifica il testo di un messaggio già inviato, di id specificato, con il nuovo testo in input.
      * 
      * @param utente Utente che sta interagendo con il bot
-     * @param message_id Id del messaggio da modificare
+     * @param message_id Id del messaggio da modificareutente.disconnect
      * @param text Nuovo testo del messaggio
      * 
      */
-    private void modifica_messagio(Utente utente, long message_id, String text) {
+    private void editMessage(Utente utente, long message_id, String text) {
         EditMessageText editMessage = new EditMessageText();
         editMessage.setChatId(utente.getChatId());
         editMessage.setMessageId(toIntExact(message_id));
@@ -558,7 +597,7 @@ public class MapBot extends TelegramLongPollingBot {
         try {
             execute(editMessage);
         } catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getNomeUtente()+") : " + e.getMessage());
+            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getUserName()+") : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -570,38 +609,40 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param message_text Messaggio inviato dall'utente
      */
-    private void inserisci_profondita(Utente utente,String message_text){
+    private void insertDepth(Utente utente,String message_text){
         
         try {
             
-		    utente.getConnessione().getObjectOutputStream().writeObject(message_text); // il client invia al server la profondita
+		    utente.getConnection().getObjectOutputStream().writeObject(message_text); // il client invia al server la profondita
 
-		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+		    String risposta= (String) (utente.getConnection().getObjectInputStream().readObject());
 
 		    if(risposta.equals("OK")){	
 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" : profondita inserita correttamente");
-                invia_scelta_distanza(utente, "Scegli il tipo di distanza");
-                utente.setStato("attesa_risposta");
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+" : profondita inserita correttamente");
+                sendChoiceDistance(utente, "Scegli il tipo di distanza");
+                utente.setUserState("attesa_risposta");
 
             }else{
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  rimane ("+utente.getStato()+")"); 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , risposta dal server : "+risposta); // stampiamo sul terminale il messaggio di errore
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " " +risposta, utente); // inviamo all'utente il messaggio di errore
-                invia_messaggio("Per favore inserisci una profondita valida.", utente);
+                sendMessage(Emoji.ERROR.getUnicode() + " " +risposta, utente); // inviamo all'utente il messaggio di errore
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") -->  rimane ("+utente.getUserState()+")"); 
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+" , risposta dal server : "+risposta); // stampiamo sul terminale il messaggio di errore
+                
+                sendMessage("Per favore inserisci una profondita valida.", utente);
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode() +" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
         } 
 
     } 
@@ -611,41 +652,45 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param scelta Scelta della distanza tra (1) SingleLinkDistance e (2) AverageLinkDistance
      */
-    private void stampa_dendrogramma_distanza_scelta(Utente utente,int scelta){
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo di recupero e stampa del Dendrogramma....", utente);
+    private void printDendrogramByDistanceChoice(Utente utente,int scelta){
+        sendMessage(Emoji.LOADING.getUnicode() +" Processo di recupero e stampa del Dendrogramma....", utente);
 
         try{
 
-            utente.getConnessione().getObjectOutputStream().writeObject(scelta);  // inviamo il server il tipo di distanza scelta
+            utente.getConnection().getObjectOutputStream().writeObject(scelta);  // inviamo il server il tipo di distanza scelta
 
-		    String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
+		    String risposta = (String) (utente.getConnection().getObjectInputStream().readObject());
 
-		    if (risposta.equals("OK")) {    
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Dendrogramma caricato con successo : ", utente);
-                String dendrogramma = (String) utente.getConnessione().getObjectInputStream().readObject();  // inviamo all'utente un messagio contente il clustering
-                invia_messaggio(dendrogramma, utente);
-    
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (salvataggio)");  
-                utente.setStato("salvataggio");
+		    if (risposta.equals("OK")) {  
 
-                invia_messaggio(Emoji.DB.getUnicode() + " Inserisci il nome dell'archivio su cui salvare il Dendrogramma (compreso di estensione)",utente);
+                sendMessage(Emoji.SUCCESS.getUnicode() + " Dendrogramma caricato con successo : ", utente);
+
+                String dendrogramma = (String) utente.getConnection().getObjectInputStream().readObject();  // inviamo all'utente un messagio contente il clustering
+                sendMessage(dendrogramma, utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (salvataggio)");  
+                utente.setUserState("salvataggio");
+
+                sendMessage(Emoji.DB.getUnicode() + " Inserisci il nome dell'archivio su cui salvare il Dendrogramma (compreso di estensione)",utente);
     
             } else {
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane  ("+utente.getStato()+")");
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente);    // invio all'utente l'errore generato
+                sendMessage(Emoji.ERROR.getUnicode() + " "+risposta, utente);   
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> rimane  ("+utente.getUserState()+")");
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , risposta dal sever : "+risposta); // stampo il messaggio di errore sul terminale
+                 
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -655,14 +700,14 @@ public class MapBot extends TelegramLongPollingBot {
      * @param msg Testo del messaggio da inviare
      * @param utente Utente che sta interagendo con il bot
      */
-    private void invia_messaggio(String msg, Utente utente) {
+    private void sendMessage(String msg, Utente utente) {
         SendMessage message = new SendMessage();
         message.setChatId(utente.getChatId());
         message.setText(msg);
         try {
             execute(message);
         }catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getNomeUtente()+") : " + e.getMessage());
+            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getUserName()+") : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -673,7 +718,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param text Testo del messaggio prima dei bottoni
      */
-    private void invia_scelta_dataset(Utente utente, String text) {  
+    private void sendChoiceDataset(Utente utente, String text) {  
         SendMessage message = new SendMessage();
         message.setChatId(utente.getChatId());
         message.setText(text);
@@ -683,16 +728,16 @@ public class MapBot extends TelegramLongPollingBot {
         
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         InlineKeyboardButton in_btn1 = new InlineKeyboardButton();
-        in_btn1.setText("Carica dataset esistente " + Emoji.CARTELLA.getUnicode());  
+        in_btn1.setText("Carica dataset esistente " + Emoji.FOLDER.getUnicode());  
         in_btn1.setCallbackData("call_back_carica_dataset");
         
         InlineKeyboardButton in_btn2 = new InlineKeyboardButton();
   
-        in_btn2.setText("Crea nuovo dataset "+ Emoji.NUOVO.getUnicode());  
+        in_btn2.setText("Crea nuovo dataset "+ Emoji.NEW.getUnicode());  
         in_btn2.setCallbackData("call_back_crea_nuovo_dataset");
         
         InlineKeyboardButton in_btn3 = new InlineKeyboardButton();
-        in_btn3.setText("Elimina dataset "+ Emoji.CESTINO.getUnicode());  
+        in_btn3.setText("Elimina dataset "+ Emoji.BIN.getUnicode());  
         in_btn3.setCallbackData("call_back_elimina_dataset");
         
         rowInline.add(in_btn1);
@@ -712,7 +757,7 @@ public class MapBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente (" + utente.getNomeUtente() + ") : " + e.getMessage());
+            System.out.println("Errore durante l'invio di un messaggio all'utente (" + utente.getUserName() + ") : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -723,7 +768,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param text Testo del messaggio prima dei bottoni
      */
-    private void invia_scelta_caricamento(Utente utente, String text) {    
+    private void sendChoiceLoad(Utente utente, String text) {    
         SendMessage message = new SendMessage();
         message.setChatId(utente.getChatId());
         message.setText(text);
@@ -755,7 +800,7 @@ public class MapBot extends TelegramLongPollingBot {
         try {
             execute(message);
         }catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getNomeUtente()+") : " + e.getMessage());
+            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getUserName()+") : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -766,7 +811,7 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta interagendo con il bot
      * @param text Testo del messaggio prima dei bottoni
      */
-    private void invia_scelta_distanza(Utente utente, String text) {  
+    private void sendChoiceDistance(Utente utente, String text) {  
         SendMessage message = new SendMessage();
         message.setChatId(utente.getChatId());
         message.setText(text);
@@ -776,11 +821,11 @@ public class MapBot extends TelegramLongPollingBot {
 
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         InlineKeyboardButton in_btn1 = new InlineKeyboardButton();
-        in_btn1.setText("Single Link Distance " + Emoji.CATENA.getUnicode());
+        in_btn1.setText("Single Link Distance " + Emoji.CHAIN.getUnicode());
         in_btn1.setCallbackData("call_back_single_link");
 
         InlineKeyboardButton in_btn2 = new InlineKeyboardButton();
-        in_btn2.setText("Average Link Distance " + Emoji.MEDIA.getUnicode());
+        in_btn2.setText("Average Link Distance " + Emoji.AVERAGE.getUnicode());
         in_btn2.setCallbackData("call_back_average_link");
 
         rowInline.add(in_btn1);
@@ -795,76 +840,87 @@ public class MapBot extends TelegramLongPollingBot {
         try {
             execute(message);
         }catch (TelegramApiException e) {
-            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getNomeUtente()+") : " + e.getMessage());
+            System.out.println("Errore durante l'invio di un messaggio all'utente ("+utente.getUserName()+") : " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /** Interagisce con il server per stabilire se il nome della nuova tabella scelto dall'utente è un nome valido, ovvero non esiste nessuna tabella
-     * nel database con lo stesso nome. Se il nome è valido viene aggiornato lo stato dell'utente, altrimenti si richiede all'utente di inserire un nuovo
-     * nome di tabella fino a quando non inserisce uno valido.
+    /** Interagisce con il server per stabilire se il nome della nuova tabella scelto dall'utente è un nome valido, 
+     *  ovvero non esiste nessuna tabella nel database con lo stesso nome. 
      * 
      * @param utente Utente che ha inviato il nome della nuova tabella da inserire nel database.
      * @param tableName Nome della tabella che l'utente desidera inserire nel databse.
      */
-    private void controlla_univocita_nome_tabella(Utente utente, String tableName) {
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() + " Processo di inserimento nuovo dataset in corso...", utente);
+    private void insertNewTableName(Utente utente, String tableName) {
+
+        sendMessage(Emoji.LOADING.getUnicode() + " Processo di inserimento nuovo dataset in corso...", utente);
     
         try {
 
-		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
+		    utente.getConnection().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella di cui ricavare il dataset
 
-		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+		    String risposta= (String) (utente.getConnection().getObjectInputStream().readObject());
 
 		    if(risposta.equals("OK")){	
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : nuovo nome trovato con successo");
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (inserimento_numero_esempi)"); 
-                utente.setStato("inserimento_numero_esempi");
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " Il nome del dataset inserito è disponibile, puoi procedere", utente);
-                invia_messaggio("Inserisci il numero di esempi per ogni transizione del dataset", utente);
+
+                sendMessage(Emoji.SUCCESS.getUnicode() + " Il nome del dataset inserito è disponibile, puoi procedere", utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") : nuovo nome trovato con successo");
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (inserimento_numero_esempi)"); 
+                utente.setUserState("inserimento_numero_esempi");
+                
+                sendMessage("Inserisci il numero di esempi per ogni transizione del dataset", utente);
 
             }else{ 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane ("+utente.getStato()+")"); 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " " + risposta, utente);
-                invia_messaggio("Inserisci nuovamente il nome della nuova tabella :",utente);  // chiediamo di reinserire un altro nome di tabella
+
+                sendMessage(Emoji.ERROR.getUnicode() + " " + risposta, utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> rimane ("+utente.getUserState()+")"); 
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , risposta dal sever : "+risposta);
+                
+                sendMessage("Inserisci nuovamente il nome della nuova tabella :",utente); 
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode() + " Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+ Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
 
     /**
      * Invia al server il numero di esempi che saranno contenuti in ogni transizione nel dataset del database che l'utente ha scelto di creare.
+     * 
      * @param utente Utente che sta inviando al server il numero di esempi
      * @param message_txt Messaggio inviato dall'utente, rappresenta il numero di esempi
      */
-    private void invia_numero_esempi(Utente utente,String message_txt){
+    private void insertNumberOfExamples(Utente utente,String message_txt){
 
         try {
-            utente.getConnessione().getObjectOutputStream().writeObject(message_txt);
-            String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
+
+            utente.getConnection().getObjectOutputStream().writeObject(message_txt);
+            String risposta = (String) (utente.getConnection().getObjectInputStream().readObject());
 
             if(risposta.equals("OK")){	
 
-                invia_messaggio("Numero di esempi per ogni transizioni inviato correttamente al server.", utente);    
-                String risposta_creazione_tabella_db = (String) (utente.getConnessione().getObjectInputStream().readObject());
+                sendMessage("Numero di esempi per ogni transizione inviato correttamente al server.", utente);
+
+                String risposta_creazione_tabella_db = (String) (utente.getConnection().getObjectInputStream().readObject());
 
                 if(risposta_creazione_tabella_db.equals("OK")){	
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : creata correttamente tabella sul db");
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (inserimento_dataset)"); 
-                    utente.setStato("inserimento_dataset");
-                    invia_messaggio(Emoji.SUCCESSO.getUnicode() + " La tabella è stata creata correttamente sul database.", utente);
 
+                    sendMessage(Emoji.SUCCESS.getUnicode() + " La tabella è stata creata correttamente sul database.", utente);
+
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") : creata correttamente tabella sul db");
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (inserimento_dataset)"); 
+                    utente.setUserState("inserimento_dataset");
+                    
                     // costruiamo il formato x1,x2,..xn considerando il numero corretto di esempi scelti dall'utente
                     String formato = "";
                     int num = Integer.parseInt(message_txt);
@@ -875,30 +931,37 @@ public class MapBot extends TelegramLongPollingBot {
                         }  
                     }
 
-                    invia_messaggio("Inizia ad inserire la prima transizione da inserire nel dataset, ricorda che ogni transizione deve essere nel formato : "+formato, utente);
-                }else{
-                    invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta_creazione_tabella_db, utente); 
-                    utente.scollega();
-                    System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
-                    invia_messaggio("Sei stato disconnesso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
+                    sendMessage("Inizia ad inserire la prima transizione da inserire nel dataset, ricorda che ogni transizione deve essere nel formato : "+formato, utente);
+               
+                }else{  // si verificano errori durante la creazione della tabella sul db
+
+                    sendMessage(Emoji.ERROR.getUnicode() + " "+risposta_creazione_tabella_db, utente); 
+
+                    utente.disconnect();
+                    System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , scollegato correttamente dal server");
+                    
+                    sendMessage("Sei stato disconnesso dal server, se vuoi continuare prima di tutto dovrai riconnetterti tramite il comando /connect", utente);
                 }
 
-            }else{
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> rimane  ("+utente.getStato()+")"); 
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+" , risposta dal server : "+risposta); 
-                invia_messaggio(Emoji.ERRORE.getUnicode() + " "+risposta, utente); 
-                invia_messaggio("Inserisci un nuovo numero di esempi", utente);
+            }else{  // l'utente inserisce un numero di esempi non valido (ad esempio 0, un numero negativo, o un formato non numerico)
+
+                sendMessage(Emoji.ERROR.getUnicode() + " "+risposta, utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> rimane  ("+utente.getUserState()+")"); 
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+" , risposta dal server : "+risposta); 
+                 
+                sendMessage("Inserisci un nuovo numero di esempi", utente);
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect " + Emoji.RESTART.getUnicode(), utente);
         }   
     }
 
@@ -906,33 +969,41 @@ public class MapBot extends TelegramLongPollingBot {
      * @param utente Utente che sta inserendo la transizione
      * @param transizione Messaggio inviato dall'utente, stringa rappresentate la transizione
      */
-    private void invia_transizione(Utente utente,String transizione){
+    private void insertTransition(Utente utente,String transizione){
       
         try{
 
-            utente.getConnessione().getObjectOutputStream().writeObject(transizione);
-            String risposta = (String) (utente.getConnessione().getObjectInputStream().readObject());
+            utente.getConnection().getObjectOutputStream().writeObject(transizione);
+            String risposta = (String) (utente.getConnection().getObjectInputStream().readObject());
 
             if(risposta.equals("OK")){
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() + " La transizione è stata aggiunta correttamente al dateset", utente);
-                invia_messaggio("Vuoi continuare ad inserire altre transizioni ? (Si/No)", utente);
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (continua_inserimento)"); 
-                utente.setStato("continua_inserimento");
+
+                sendMessage(Emoji.SUCCESS.getUnicode() + " La transizione è stata aggiunta correttamente al dateset", utente);
+                sendMessage("Vuoi continuare ad inserire altre transizioni ? (Si/No)", utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (continua_inserimento)"); 
+                utente.setUserState("continua_inserimento");
+
             }else{
-                invia_messaggio(Emoji.ERRORE.getUnicode() +" "+risposta, utente);
-                invia_messaggio("Per favore inserisci una nuova transizione rispettando il formato specificato", utente);
+
+                sendMessage(Emoji.ERROR.getUnicode() +" "+risposta, utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") -->  rimane ("+utente.getUserState()+")");
+                
+                sendMessage("Per favore inserisci una nuova transizione rispettando il formato specificato", utente);
                 
             }
 
-        } catch (IOException|ClassNotFoundException e) {
-            System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , Eccezione : "+e.getMessage());
+        } catch (IOException|ClassNotFoundException e) {  // errori durante la comunicazione con il server
+
+            System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , Eccezione : "+e.getMessage());
             try {
-                utente.scollega();
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
+                utente.disconnect();
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , scollegato correttamente dal server");
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , Eccezione : (" +e1.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , Eccezione : (" +e1.getMessage());
             }
-            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso per favore ricconnettiti tramite il comando /connect", utente);
+            sendMessage(Emoji.ERROR.getUnicode()+" Si sono verificato degli errori durante la trasmissione della transizione al server, sei stato disconesso per favore ricconnettiti tramite il comando /connect", utente);
 
         }
     }
@@ -944,53 +1015,46 @@ public class MapBot extends TelegramLongPollingBot {
      * 
      */
     private void deleteDataOnServer(Utente utente, String tableName) {
-        invia_messaggio(Emoji.CARICAMENTO.getUnicode() +" Processo eliminazione dataset in corso...", utente);
+
+        sendMessage(Emoji.LOADING.getUnicode() +" Processo eliminazione dataset in corso...", utente);
 
         try{
 
-		    utente.getConnessione().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella che vuole eliminare
-
-		    String risposta= (String) (utente.getConnessione().getObjectInputStream().readObject());
+		    utente.getConnection().getObjectOutputStream().writeObject(tableName); // inviamo al server il nome della tabella che vuole eliminare
+		    String risposta= (String) (utente.getConnection().getObjectInputStream().readObject());
 
 		    if(risposta.equals("OK")){	
 
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") : eliminato correttamente il dataset");
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") --> (default)"); 
-                utente.setStato("default");
-                invia_messaggio(Emoji.SUCCESSO.getUnicode() +" Il dataset è stato eliminato con successo dal database.", utente);
-                invia_messaggio("Se desideri ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
+                sendMessage(Emoji.SUCCESS.getUnicode() +" Il dataset è stato eliminato con successo dal database.", utente);
 
-            }else if(risposta.equals("NON ESISTE") || risposta.equals("NUMERO")){
-
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente()+ ") , stato : (" + utente.getStato()+ ") -->  rimane ("+utente.getStato()+")");
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-
-                if(risposta.equals("NON ESISTE")){
-                    invia_messaggio(Emoji.ERRORE.getUnicode() + " Il nome della tabella che hai inserito non esiste nel database.", utente);
-                }else{
-                    invia_messaggio(Emoji.ERRORE.getUnicode() + " In sql non può esistere un nome di tabella che sia composto solo da numeri", utente);
-                }
-
-
-                invia_messaggio("Inserisci nuovamente il nome della tabella da eliminare :",utente);  // chiediamo di reinserire un altro nome di tabella
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") : eliminato correttamente il dataset");
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") --> (default)"); 
+                utente.setUserState("default");
+                
+                sendMessage("Se desideri ricominciare l'esecuzione esegui il comando /restart "+ Emoji.RESTART.getUnicode(), utente);
 
             }else{
-                System.out.println(data_corrente()+" - Utente : ("+ utente.getNomeUtente()+") , risposta dal sever : "+risposta);
-                invia_messaggio(Emoji.ERRORE.getUnicode() +" "+risposta, utente);
-                utente.scollega();
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , scollegato correttamente dal server");
-                invia_messaggio("Sei stato disconnesso dal sever, se vuoi continuare prima di tutto riconnettiti tramite il comando /connect", utente);
+
+                sendMessage(Emoji.ERROR.getUnicode() + " Il nome della tabella che hai inserito non esiste nel database.", utente);
+
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName()+ ") , stato : (" + utente.getUserState()+ ") -->  rimane ("+utente.getUserState()+")");
+                System.out.println(currentDate()+" - Utente : ("+ utente.getUserName()+") , risposta dal sever : "+risposta);
+
+                sendMessage("Inserisci nuovamente il nome della tabella da eliminare :",utente);  // chiediamo di reinserire un altro nome di tabella
+
             }
 
         }catch(IOException|ClassNotFoundException e){ // errori durante la comunicazione dell'utente con il server
+
             try {
-                utente.scollega();
+                utente.disconnect();
             } catch (IOException e1) {
-                System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
+                System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") eccezione durante lo scollegamento dal server , "+e.getMessage());
             }
-            System.out.println(data_corrente()+" - Utente : (" + utente.getNomeUtente() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
-            invia_messaggio(Emoji.ERRORE.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
-            invia_messaggio("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
+
+            System.out.println(currentDate()+" - Utente : (" + utente.getUserName() + ") , si sono verificati degli errori durante la comunicazione con il server, utente scollegato correttamente dal server");
+            sendMessage(Emoji.ERROR.getUnicode()+" Si sono verificati degli errori durante la comunicazione al server e sei stato disconnesso", utente);
+            sendMessage("Se desideri riconnetterti esegui il comando /connect "+Emoji.RESTART.getUnicode(), utente);
         }   
 
             
@@ -1000,7 +1064,7 @@ public class MapBot extends TelegramLongPollingBot {
      * Restituisce la data e l'ora corrente.
      * @return Stringa che rappresenta la data e l'ora corrente.
      */
-    private String data_corrente(){
+    private String currentDate(){
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
         return currentDateTime.format(formatter);

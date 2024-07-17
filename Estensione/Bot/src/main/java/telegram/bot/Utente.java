@@ -11,13 +11,13 @@ public class Utente {
     private long chat_id;
 
     /** Nome utente telegram */
-    private String nomeUtente;
+    private String userName;
 
     /** Oggetto Connessione, rappresenta la connessione dell'utente con il Server */
     private Connessione conn;
 
     /** Stato in cui si trova l'utente */
-    private String statoUtente;
+    private String userState;
 
     /*  Stati possibili per l'utente durante la comunicazione con il Bot
      *  
@@ -41,15 +41,15 @@ public class Utente {
     /**
      * Costruttore
      * @param chat_id Id della chat dell'utente
-     * @param nomeUtente Nome utente dell'utente che sta comunicando con il Bot
+     * @param userName Nome utente dell'utente che sta comunicando con il Bot
      * @param conn Oggetto connessione, rappresenta la connsessione dell'utente (client) al server
      * @param statUtente Stato in cui si trova l'utente durante la comunicazione con il bot
      */
-    Utente(long chat_id, String nomeUtente, Connessione conn, String statUtente) {
+    Utente(long chat_id, String userName, Connessione conn, String statUtente) {
         this.chat_id = chat_id;
-        this.nomeUtente = nomeUtente;
+        this.userName = userName;
         this.conn = conn;
-        this.statoUtente = statUtente;
+        this.userState = statUtente;
 
     }
 
@@ -65,31 +65,31 @@ public class Utente {
      * Restituisce il nome dell'utente che interagisce con il bot.
      * @return Nome dell'utente che sta interagendo con il bot.
      */
-    String getNomeUtente(){
-        return this.nomeUtente;
+    String getUserName(){
+        return this.userName;
     }
 
     /**
      * Restituisce lo stato in cui si trova l'utente che sta intergando con il bot.
      * @return Stato dell'utente
      */
-    String getStato(){
-        return this.statoUtente;
+    String getUserState(){
+        return this.userState;
     }
 
     /**
      * Aggiorna lo stato dell'utente che sta interagendo con il bot.
-     * @param nuovo_stato Nuovo stato dell'utente
+     * @param newUserSate nuovo stato dell'utente
      */
-    void setStato(String nuovo_stato){
-        this.statoUtente = nuovo_stato;
+    void setUserState(String newUserState){
+        this.userState = newUserState;
     }    
 
     /**
      * Aggiorna l'oggetto Connessione, il quale rappresenta la connessione dell'utente (client) con il server.
      * @param conn Oggetto Connessione
      */
-    void setConnessione(Connessione conn){
+    void setConnection(Connessione conn){
         this.conn = conn;
     }
 
@@ -97,7 +97,7 @@ public class Utente {
      * Restituisce l'oggetto Connessione, utile per comunicare con il server.
      * @return Oggetto connessione
      */
-    Connessione getConnessione(){
+    Connessione getConnection(){
         return this.conn;
     }
 
@@ -107,9 +107,9 @@ public class Utente {
      * @param PORT Porta dove è in ascolto il server
      * @throws IOException se si verificato errori durante la comunicazione con il server
      */
-    void collega(String ip, Integer PORT) throws IOException{
+    void connect(String ip, Integer PORT) throws IOException{
         this.conn = new Connessione(ip, PORT);
-        this.statoUtente = "default";
+        this.userState = "default";
     }
 
 
@@ -117,10 +117,10 @@ public class Utente {
      * Scollega l'utente dal server.
      * @throws IOException se si verificato errori durante la comunicazione con il server
      */
-    void scollega() throws IOException{
+    void disconnect() throws IOException{
         this.conn.scollega();
         this.conn = null;
-        this.statoUtente = "null";
+        this.userState = "null";
     }
 
 
