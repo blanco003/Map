@@ -14,7 +14,8 @@ import distance.ClusterDistance;
 
 /**
  * La classe HierachicalClusterMiner rappresenta un algoritmo di clustering gerarchico.
- * Questa classe permette di costruire un dendrogramma, eseguire il clustering su un dataset e salvare/caricare lo stato del clustering.
+ * Questa classe permette di costruire un dendrogramma, eseguire il clustering su un dataset 
+ * e salvare/caricare lo stato del clustering su file.
  */
 public class HierarchicalClusterMiner implements Serializable{
 
@@ -24,7 +25,7 @@ public class HierarchicalClusterMiner implements Serializable{
 	private Dendrogram dendrogram; 
 
 	/**
-	 * Costruisce un HierachicalClusterMiner con una profondità specificata e un numero di esempi.
+	 * Costruisce un HierachicalClusterMiner con una profondità specificata e un numero di esempi del dataset.
 	 *
 	 * @param depth la profondità del dendrogramma
 	 * @param numberOfExamples il numero di esempi nel dataset
@@ -66,15 +67,23 @@ public class HierarchicalClusterMiner implements Serializable{
 	 * Carica un HierachicalClusterMiner da un file.
 	 *
 	 * @param fileName il nome del file da cui caricare lo stato
+	 * @param numberOfExamples numero di esempi del dataset caricato
 	 * @return un oggetto HierachicalClusterMiner caricato dal file
-	 * @throws FileNotFoundException se il file non può essere trovato
-	 * @throws IOException se si verifica un errore di I/O durante il caricamento
+	 * @throws FileNotFoundException se il file specificato è inesistente
+	 * @throws IOException se si verifica un errore di I/O durante la lettura da file
 	 * @throws ClassNotFoundException se la classe dell'oggetto serializzato non può essere trovata
+	 * @throws InvalidDepthException se la profondità del HierachicalClusterMiner letto da file è maggiore del numero di esempi del dataset caricato
 	 */
-	public static HierarchicalClusterMiner loadHierachicalClusterMiner(String fileName) throws FileNotFoundException,IOException,ClassNotFoundException{
+	public static HierarchicalClusterMiner loadHierachicalClusterMiner(String fileName, int numberOfExamples) throws FileNotFoundException,IOException,ClassNotFoundException,InvalidDepthException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName));
         HierarchicalClusterMiner h = (HierarchicalClusterMiner) in.readObject();
         in.close();
+
+		// N.B : controlliamo se la profondita del dendrogramma caricato dal file è maggiore del numero di esempi del dataset
+		if(h.dendrogram.getDepth() > numberOfExamples){
+			throw new InvalidDepthException("! ! Errore : La profondità del dendrogramma salvato nel file scelto ("+h.dendrogram.getDepth()+") è maggiore del numero di esempi nel dataset ("+numberOfExamples+")");
+		}
+
         return h;
 	}
 
@@ -88,38 +97,33 @@ public class HierarchicalClusterMiner implements Serializable{
 	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
 	public void mine(Data data, ClusterDistance distance) throws InvalidSizeException, CloneNotSupportedException{
+
 		// creazione del livello base del dendrogramma (livello 0)
-		ClusterSet baseLevel = new ClusterSet(data.getNumberOfExamples());
+		// tutti i clusterSet vengono inseriti singolarmente 
+
+		ClusterSet livello_base = new ClusterSet(data.getNumberOfExamples());
+
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {
-			Cluster singleCluster = new Cluster();
-			singleCluster.addData(i);
-			baseLevel.add(singleCluster);
+			Cluster cluster_corrente = new Cluster();
+			cluster_corrente.addData(i);
+			livello_base.add(cluster_corrente);
 		}
-		dendrogram.setClusterSet(baseLevel, 0);
+
+		dendrogram.setClusterSet(livello_base, 0);
 
 		// Costruzione dei livelli successivi del dendrogramma
+		// in ogni livello uniamo i 2 cluster che hanno distanza minima con tipo di distanza scelto
+
 		for (int level = 1; level < dendrogram.getDepth(); level++) {
-			ClusterSet previousLevel = dendrogram.getClusterSet(level - 1);
-			ClusterSet mergedLevel = previousLevel.mergeClosestClusters(distance, data);
-			dendrogram.setClusterSet(mergedLevel, level);
+
+			ClusterSet livello_precedente = dendrogram.getClusterSet(level - 1);
+			ClusterSet livello_fusione = livello_precedente.mergeClosestClusters(distance, data);
+			dendrogram.setClusterSet(livello_fusione, level);
 		}
 
 	}
 
-	/* Aggiunta per recuperare la profondità del dendrogramma. Utile per gestire il caso in cui la profondita del dendrogrammata caricato a partire
-	   da un file risulta maggiore del numero di esempi del dataset.
-	*/
-
 	/**
-	 * Restituisce la profondità del dendrogramma.
-	 *
-	 * @return la profondità del dendrogramma.
-	*/
-	public int getDendrogramDepth(){
-		return dendrogram.getDepth();
-	}
-
-		/**
 	 * Restituisce una rappresentazione sotto forma di stringa del dendrogramma.
 	 *
 	 * @return una stringa che rappresenta il dendrogramma
@@ -130,7 +134,7 @@ public class HierarchicalClusterMiner implements Serializable{
 
 
 	/**
-	 * Restituisce una rappresentazione sotto forma di stringa del dendrogramma utilizzando i dati forniti.
+	 * Restituisce una rappresentazione sotto forma di stringa del dendrogramma utilizzando il dataset fornito.
 	 *
 	 * @param data i dati da utilizzare per la rappresentazione
 	 * @return una stringa che rappresenta il dendrogramma utilizzando i dati
@@ -138,7 +142,5 @@ public class HierarchicalClusterMiner implements Serializable{
 	public String toString(Data data) {
 		return dendrogram.toString(data);
 	}
-
-
 
 }

@@ -33,6 +33,7 @@ INSERT INTO mapdb.exampleTab2 (X1, X2, X3, X4, X5) VALUES (1, 3.7, 5, 1.2, 1.61)
 INSERT INTO mapdb.exampleTab2 (X1, X2, X3, X4, X5) VALUES (1, 3.0, 4, 0.9, 0.99);
 INSERT INTO mapdb.exampleTab2 (X1, X2, X3, X4, X5) VALUES (2, 2.2, 0, 56.1, 1.41);
 
+
 CREATE TABLE mapdb.exampleTab3(
  X1 int,
  X2 float
@@ -41,6 +42,7 @@ CREATE TABLE mapdb.exampleTab3(
 INSERT INTO mapdb.exampleTab3 (X1, X2) VALUES (1, 2.0);
 INSERT INTO mapdb.exampleTab3 (X1, X2) VALUES (0, 1.5);
 
+-- esempio tabella con attributo non numerico
 CREATE TABLE mapdb.exampleTab4(
  X1 float,
  X2 varchar(19),
@@ -54,7 +56,7 @@ INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (1.0, 'stringa3', 'c', 4);
 INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (5.0, 'stringa4', 'd', 3);
 INSERT INTO mapdb.exampleTab4 (X1, X2, X3, X4) VALUES (0.0, 'stringa5', 'e', 5);
 
-
+-- esempio tabella vuota
 CREATE TABLE mapdb.exampleTab5(
  X1 float
 );

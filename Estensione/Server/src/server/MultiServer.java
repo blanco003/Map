@@ -26,20 +26,30 @@ public class MultiServer {
         System.out.println("Server started : " + s);
 
         try{
-            while(true){  // sempre in esecuzione
-                Socket socket = s.accept(); // rimane in attesa di richieste dai Client
+
+            while(true){  // sempre in esecuzione, rimane in attesa di richieste dai Client
+
+                Socket socket = s.accept(); 
+
                 try{
+
                     new ServerOneClient(socket);  // crea un thread per gestire la richiesta e si rimette in attesa di altre richieste
+
                 }catch(IOException e){
-                    // se fallisce viene chiuso il socket relativo, altrimenti il thread la chiuderà
+
+                    // se fallisce viene chiuso il socket relativo, altrimenti il thread la chiuderà con la fine dell'esecuzione
                     socket.close();
+
                 }
             }
+
         } 
 
         finally{
+
             System.out.println("Chiusura Server");
             s.close();   // chiusura del ServerSocket
+
         }
 
 

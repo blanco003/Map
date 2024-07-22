@@ -52,12 +52,49 @@ class ClusterSet implements Serializable{
 	}
 	
 	/**
-	 * Unisce i cluster più vicini basandosi sulla distanza specificata e restituisce un nuovo ClusterSet.
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster.
+	 *
+	 * @return una stringa che rappresenta l'insieme di cluster
+	 */
+	public String toString(){
+		String str="";
+		for(int i=0;i<C.length;i++){
+			if (C[i]!=null){
+				str+="cluster"+i+":"+C[i]+"\n";
+		
+			}
+		}
+		return str;
+		
+	}
+
+	
+	/**
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando il dataset fornito.
+	 *
+	 * @param data i dati da utilizzare per la rappresentazione
+	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
+	 */
+	public String toString(Data data){
+		String str="";
+		for(int i=0;i<C.length;i++){
+			if (C[i]!=null){
+				str+="cluster"+i+":"+C[i].toString(data)+"\n";
+		
+			}
+		}
+		return str;
+	}
+
+
+
+	/**
+	 * Unisce i cluster più vicini, in base al tipo di distanza specificata, e restituisce un nuovo ClusterSet.
 	 *
 	 * @param distance la distanza utilizzata per determinare i cluster più vicini
 	 * @param data i dati utilizzati per il calcolo della distanza
 	 * @return un nuovo ClusterSet risultante dalla fusione dei cluster più vicini
-	 * @throws InvalidSizeException se la dimensione degli esempi è diversa
+	 * @throws InvalidSizeException  se si prova a calcolare la distanza tra due esempi di diversa dimensione
 	 * @throws CloneNotSupportedException se la clonazione di un cluster fallisce
 	 */
 	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) throws InvalidSizeException, CloneNotSupportedException{
@@ -104,41 +141,5 @@ class ClusterSet implements Serializable{
 
 		return nuovo_clusters_set;
 	}
-
-		/**
-	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster.
-	 *
-	 * @return una stringa che rappresenta l'insieme di cluster
-	 */
-	public String toString(){
-		String str="";
-		for(int i=0;i<C.length;i++){
-			if (C[i]!=null){
-				str+="cluster"+i+":"+C[i]+"\n";
-		
-			}
-		}
-		return str;
-		
-	}
-
-	
-	/**
-	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando i dati forniti.
-	 *
-	 * @param data i dati da utilizzare per la rappresentazione
-	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
-	 */
-	public String toString(Data data){
-		String str="";
-		for(int i=0;i<C.length;i++){
-			if (C[i]!=null){
-				str+="cluster"+i+":"+C[i].toString(data)+"\n";
-		
-			}
-		}
-		return str;
-	}
-
 	
 }

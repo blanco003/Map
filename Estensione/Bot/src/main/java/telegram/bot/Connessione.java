@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * Classe che rappresenta la connessione dell'utente con il Server.
+ * Classe che rappresenta la connessione dell'utente che sta interagendo con il bot (client) con il Server.
  */
 public class Connessione {
 
@@ -22,10 +22,10 @@ public class Connessione {
 
 
     /**
-     * Costruttore, inzilizza la connessione al server
-     * @param ip Ip sulla quale è attivo il server
-     * @param port Porta sulla quale è in ascolto il server
-     * @throws IOException se si verificano errori durante il collegamento al server
+     * Costruttore, inzilizza la connessione al server.
+     * @param ip Ip sulla quale è attivo il server.
+     * @param port Porta sulla quale è in ascolto il server.
+     * @throws IOException se si verificano errori durante il collegamento al server.
      */
     Connessione(String ip, int port) throws IOException{
 		InetAddress addr = InetAddress.getByName(ip);
@@ -52,7 +52,7 @@ public class Connessione {
 
     /**
      * Termina la connessione con il server.
-     * @throws IOException se si verificano errori durante lo scollegamento dell'utente dal server.
+     * @throws IOException se si verificano errori durante la comunicazione con il server.
      */
     void scollega() throws IOException{
         socket.close();

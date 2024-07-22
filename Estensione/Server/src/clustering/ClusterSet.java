@@ -70,7 +70,7 @@ class ClusterSet implements Serializable{
 
 	
 	/**
-	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando i dati forniti.
+	 * Restituisce una rappresentazione sotto forma di stringa dell'insieme di cluster utilizzando il dataset fornito.
 	 *
 	 * @param data i dati da utilizzare per la rappresentazione
 	 * @return una stringa che rappresenta l'insieme di cluster utilizzando i dati
@@ -89,7 +89,7 @@ class ClusterSet implements Serializable{
 
 
 	/**
-	 * Unisce i cluster più vicini basandosi sulla distanza specificata e restituisce un nuovo ClusterSet.
+	 * Unisce i cluster più vicini, in base al tipo di distanza specificata, e restituisce un nuovo ClusterSet.
 	 *
 	 * @param distance la distanza utilizzata per determinare i cluster più vicini
 	 * @param data i dati utilizzati per il calcolo della distanza

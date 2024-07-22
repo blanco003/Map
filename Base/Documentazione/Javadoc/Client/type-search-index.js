@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"<Unnamed>","l":"Keyboard"},{"p":"<Unnamed>","l":"MainTest"}];updateSearchResults();
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"utility","l":"Keyboard"},{"p":"<Unnamed>","l":"MainTest"}];updateSearchResults();

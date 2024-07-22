@@ -60,6 +60,7 @@ public class Example implements Iterable<Double>{
         return example.get(index);
     }
 
+
     /* rimpiazzato con iterator
     public double distance(Example newE){
         double distance=0;
@@ -86,6 +87,7 @@ public class Example implements Iterable<Double>{
      */
     public double distance(Example newE) throws InvalidSizeException{
         double distance=0;
+
         if (example.size() != newE.example.size()) {
         	throw new InvalidSizeException("I due vettori devono avere la stessa lunghezza");
         }

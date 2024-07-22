@@ -3,7 +3,6 @@ package clustering;
 /**
  * La classe InvalidDepthException rappresenta un'eccezione personallizata, sollevata quando la profondità del dendrogramma
  * è maggiore del numero di esempi nel dataset.
- * Questa eccezione viene utilizzata per segnalare un errore nella configurazione del clustering gerarchico.
  */
 public class InvalidDepthException extends Exception {
 

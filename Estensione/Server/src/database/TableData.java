@@ -74,7 +74,7 @@ public class TableData {
 
 			ResultSet rs = statement.executeQuery(query);      // conterrà il risultato della query eseguita sul db
 
-			boolean empty = true;  // serve per verifiare se il risultato della query di selezione è vuoto, ovvero non contiene esempi
+			boolean empty = true;  // serve per verifiare se il risultato della query di selezione è vuoto, ovvero se non contiene esempi
 
 			while (rs.next()) {        // iteriamo ogni riga del risultato
 

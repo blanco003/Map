@@ -8,7 +8,7 @@ import data.Data;
 
 
 /**
- * La classe Cluster rappresenta un insieme di dati raggruppati.
+ * La classe Cluster rappresenta un insieme di dataset raggruppati, in modo ordinato.
  * Questa classe permette di aggiungere, unire e iterare su dati raggruppati.
  */
 public class Cluster implements Iterable<Integer>, Cloneable, Serializable{	
@@ -77,7 +77,6 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 
 	/**
 	 * Crea una copia del cluster corrente.
-	 *
 	 * @return un clone del cluster corrente
 	 * @throws CloneNotSupportedException se il clone non è supportato
 	*/
@@ -138,7 +137,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 
 
 	/**
-	 * Restituisce una rappresentazione sotto forma di stringa del cluster usando solo gli indici.
+	 * Restituisce una rappresentazione sotto forma di stringa del cluster usando solo gli indici dei campioni dei dataset.
 	 *
 	 * @return una stringa che rappresenta gli elementi del cluster.
 	 */
@@ -170,7 +169,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable{
 
 
 	/**
-	 * Restituisce una rappresentazione sotto forma di stringa del cluster utilizzando i dati forniti.
+	 * Restituisce una rappresentazione sotto forma di stringa del cluster utilizzando il dataset fornito.
 	 *
 	 * @param data i dati da utilizzare per la rappresentazione
 	 * @return una stringa che rappresenta gli elementi del cluster utilizzando i dati

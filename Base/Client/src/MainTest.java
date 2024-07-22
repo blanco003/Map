@@ -4,6 +4,8 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import utility.Keyboard;
+
 
 /**
  * Rappresenta il Client, il quale si collega con il Server ed inizia ad interagire
@@ -116,7 +118,6 @@ public class MainTest {
 			System.out.println(risp);
 			return;
 		}
-		
 		
 		int dType=-1;
 		do {
