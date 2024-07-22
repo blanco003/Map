@@ -8,7 +8,7 @@ import utility.Keyboard;
 
 
 /**
- * Rappresenta il Client, il quale si collega con il Server ed inizia ad interagire
+ * Rappresenta il Client, il quale si collega con il Server ed inizia ad interagire.
  */
 public class MainTest {
 	
@@ -22,7 +22,7 @@ public class MainTest {
 	 * Inzializza un oggetto MainTest
 	 * @param ip indirizzo ip su cui è attivo il Server
 	 * @param port porta su cui è in ascolto il Server
-	 * @throws IOException - se si verificano errori durante l'input/output
+     * @throws IOException Se si verificano errori durante la comunicazione con il server
 	 */
 	public MainTest(String ip, int port) throws IOException{
 		InetAddress addr = InetAddress.getByName(ip); //ip
@@ -37,8 +37,8 @@ public class MainTest {
 	
 	
 	/**
-	 * Stampa video le opzioni possibili che il Client puo' effettuare
-	 * @return scelta del Client
+	 * Stampa a video le opzioni possibili che il Client può effettuare.
+	 * @return scelta del Client su come caricare il Dendrogramma.
 	 */
 	private int menu(){
 		int answer;
@@ -55,9 +55,9 @@ public class MainTest {
 	}
 	
 	/**
-	 * Invia al server il nome della tabella del database, la quale vuole usare come dataset
-	 * @throws IOException - se si verificano errori durante l'input/output
-	 * @throws ClassNotFoundException - se si verificano errori durante la lettura del dataset
+	 * Invia al server il nome della tabella del database, la quale il client vuole usare come dataset.
+     * @throws IOException Se si verificano errori durante la comunicazione con  il server
+     * @throws ClassNotFoundException Se si verificano errori durante la lettura della risposta del server
 	 */
 	private void loadDataOnServer() throws IOException, ClassNotFoundException {
 		boolean flag=false;
@@ -75,10 +75,10 @@ public class MainTest {
 	}
 	
 	/**
-	 * Interagisce con il Server in modo da inviare il nome dell'archivio sul quale è presente l'HierachicalClusterMiner da caricare,
-	 * in caso di corretto funzionamento viene stampato a video, altrimenti viene stamapata l'eccezione che si verifica
-	 * @throws IOException - se si verificano errori durante l'input/output
-	 * @throws ClassNotFoundException - se si verificano errori durante la costruzione del Dendrogramma
+	 * Interagisce con il Server in modo da inviare il nome dell'archivio sul quale è presente l'HierachicalClusterMiner che il client
+	 * desidera caricare, in caso di corretto ritrovamento del file viene stampato a video l'HierachicalClusterMiner letto dal file.
+     * @throws IOException Se si verificano errori durante la comunicazione con  il server
+     * @throws ClassNotFoundException Se si verificano errori durante la lettura della risposta del server
 	 */
 	private void loadDedrogramFromFileOnServer() throws IOException, ClassNotFoundException {
 		System.out.println("Inserire il nome dell'archivio (comprensivo di estensione):");
@@ -94,31 +94,19 @@ public class MainTest {
 	}
 	
 	/**
-	 * Interagisce con il Server in modo da crea un HierachicalClusterMiner con profondita e tipo di distanza
-	 * scelta dal Client ed inviata al Server, in caso di corretto funzionamento viene stampato a video,
-	 * altrimenti viene stampata l'eccezione che si verifica, ed infine invia al Server il nome dell'archivio
-	 * su cui desidera salvare l'oggetto creato.
-	 * @throws IOException - se si verificano errori durante l'input/output
-	 * @throws ClassNotFoundException - se si verificano errori durante la costruzione del Dendrogramma
+	 * Interagisce con il Server in modo da creare un HierachicalClusterMiner con profondita e tipo di distanza
+	 * scelta dal Client, in caso di corretto funzionamento viene stampato a video, ed infine invia al Server il nome 
+	 * dell'archivio su cui il Client desidera salvare l'oggetto creato.
+     * @throws IOException Se si verificano errori durante la comunicazione con  il server
+     * @throws ClassNotFoundException Se si verificano errori durante la lettura della risposta del server
 	 */
 	private void mineDedrogramOnServer() throws IOException, ClassNotFoundException {
 		
-		
+
 		out.writeObject(1);
 		System.out.println("Introdurre la profondita'  del dendrogramma");
 		int depth=Keyboard.readInt();
 		out.writeObject(depth); 
-		
-		/* aggiunto per controllare se la profondita e' corretta e il dendrogramma 
-		 * viene creato correttamente senza sollavare l'eccezione InvalidDepthException,
-		 * altrimenti non ha senso chiedere il tipo di distanza se poi il programma termina
-		 */
-		String risp= (String) (in.readObject());
-		if(!risp.equals("OK")) {
-			System.out.println(risp);
-			return;
-		}
-		
 		int dType=-1;
 		do {
 		System.out.println("Distanza: single-link (1), average-link (2):");
@@ -138,8 +126,8 @@ public class MainTest {
 	}
 	
 	/**
-	 * Punto di avvio del Client
-	 * @param args - parametri della run configuration, bisogna specificare indirizzo e port dove è in ascolto il Server
+	 * Punto di avvio del Client.
+	 * @param args - parametri della run configuration, bisogna specificare indirizzo e port dove è in ascolto il Server.
 	 */
 		public static void main(String[] args) {
 		String ip=args[0];

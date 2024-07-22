@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import clustering.HierarchicalClusterMiner;
 import clustering.InvalidDepthException;
@@ -100,17 +101,6 @@ public class ServerOneClient extends Thread {
                     
                     //il Client invia la profondita' del Dendrogramma
                     Integer profondita = Integer.parseInt(this.in.readObject().toString());
-                   
-                    clustering = new HierarchicalClusterMiner(profondita,data.getNumberOfExamples());    
-                    // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException 
-
-                    
-                    // aggiunto per controllare che il clustering venga creato correttamente
-                    // senza chiedere inutilmente prima il tipo di distanza al client
-                    this.out.writeObject("OK");
-                    
-                    System.out.println("Il Client ha inserito la profondità correttamente");
-                    
 
                     //successivamente il client invia il tipo di distanza, (1) per SingeLink e (2) per AverageLink
                     Integer distanza = Integer.parseInt(this.in.readObject().toString());
@@ -121,6 +111,11 @@ public class ServerOneClient extends Thread {
                     }else{
                         distance = new AverageLinkDistance();
                     }
+                   
+                    clustering = new HierarchicalClusterMiner(profondita,data.getNumberOfExamples());    
+                    // se la profondita supera il numero di esempi viene sollevata l'eccezione InvalidDepthException 
+
+                    System.out.println("Il Client ha inserito la profondità correttamente");
 
                     clustering.mine(data, distance);
 
